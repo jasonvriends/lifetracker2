@@ -1,0 +1,81 @@
+/* Custom styles for Lifetracker */
+
+/* Hero section enhancements */
+.hero-shadow {
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Animation for call-to-action buttons */
+.cta-button:hover {
+    transform: translateY(-2px);
+    transition: transform 0.3s ease;
+}
+
+/* Custom transitions */
+.smooth-transition {
+    transition: all 0.3s ease-in-out;
+}
+
+/* Custom card hover effects */
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+/* Custom animation for icons */
+.icon-pulse:hover {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Theme toggle animation */
+#theme-toggle {
+    transition: transform 0.3s ease;
+}
+
+#theme-toggle:hover {
+    transform: rotate(15deg);
+}
+
+/* User avatar hover effect */
+#user-menu-button {
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+}
+
+#user-menu-button:hover {
+    transform: scale(1.05);
+    border: 2px solid #3b82f6;
+}
+
+/* Ensure proper sticky footer */
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+footer {
+    flex-shrink: 0;
+} 
