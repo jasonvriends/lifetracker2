@@ -45,10 +45,13 @@
                                 </div>
                                 <ul class="py-2" aria-labelledby="user-menu-button">
                                     <li>
-                                        <a href="{% url 'dashboard' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Dashboard</a>
+                                        <a href="{% url 'dashboard' %}" class="block px-4 py-2 text-sm {% if request.path == '/dashboard/' %}text-blue-700 font-medium bg-gray-50 dark:bg-gray-700 dark:text-white{% else %}text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white{% endif %}">Dashboard</a>
                                     </li>
                                     <li>
-                                        <a href="{% url 'profile' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Profile</a>
+                                        <a href="{% url 'activities' %}" class="block px-4 py-2 text-sm {% if request.path == '/activities/' %}text-blue-700 font-medium bg-gray-50 dark:bg-gray-700 dark:text-white{% else %}text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white{% endif %}">Activities</a>
+                                    </li>
+                                    <li>
+                                        <a href="{% url 'profile' %}" class="block px-4 py-2 text-sm {% if request.path == '/users/profile/' %}text-blue-700 font-medium bg-gray-50 dark:bg-gray-700 dark:text-white{% else %}text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white{% endif %}">Profile</a>
                                     </li>
                                     <li>
                                         <form method="post" action="{% url 'logout' %}" class="block">
@@ -72,8 +75,11 @@
                 </div>
                 <div class="hidden justify-between items-center w-full lg:flex lg:w-auto lg:order-1" id="mobile-menu-2">
                     <ul class="flex flex-col mt-4 font-medium lg:flex-row lg:space-x-8 lg:mt-0">
-                        <li>
-                            <a href="{% url 'dashboard' %}" class="block py-2 pr-4 pl-3 text-white rounded bg-blue-700 lg:bg-transparent lg:text-blue-700 lg:p-0 dark:text-white" aria-current="page">Dashboard</a>
+                        <li class="{% if request.path == '/dashboard/' %}active-nav-item{% endif %}">
+                            <a href="{% url 'dashboard' %}" class="nav-link block py-2 pr-4 pl-3 {% if request.path == '/dashboard/' %}text-white bg-blue-700 lg:bg-transparent lg:text-blue-700 border-b border-blue-700{% else %}text-gray-700 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-blue-700{% endif %} rounded lg:p-0 dark:text-white" {% if request.path == '/dashboard/' %}aria-current="page"{% endif %}>Dashboard</a>
+                        </li>
+                        <li class="{% if request.path == '/activities/' %}active-nav-item{% endif %}">
+                            <a href="{% url 'activities' %}" class="nav-link block py-2 pr-4 pl-3 {% if request.path == '/activities/' %}text-white bg-blue-700 lg:bg-transparent lg:text-blue-700 border-b border-blue-700{% else %}text-gray-700 hover:bg-gray-50 lg:hover:bg-transparent lg:border-0 lg:hover:text-blue-700{% endif %} rounded lg:p-0 dark:text-white" {% if request.path == '/activities/' %}aria-current="page"{% endif %}>Activities</a>
                         </li>
                     </ul>
                 </div>

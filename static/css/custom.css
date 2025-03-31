@@ -78,4 +78,36 @@ main {
 
 footer {
     flex-shrink: 0;
+}
+
+/* Active navigation item styles */
+.active-nav-item {
+    position: relative;
+}
+
+.active-nav-item::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #3b82f6; /* blue-600 */
+    border-radius: 2px;
+}
+
+/* Enhanced focus styles for navigation items */
+.nav-link:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px #3b82f6;
+    border-radius: 0.25rem;
+}
+
+/* Desktop navigation bottom border transition */
+@media (min-width: 1024px) {
+    .lg\:border-blue-700 {
+        border-bottom-width: 2px;
+        transition: border-color 0.2s ease;
+    }
 } 
