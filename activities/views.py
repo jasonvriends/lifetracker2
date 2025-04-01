@@ -157,17 +157,43 @@ def delete_activity(request, pk):
 @login_required
 def get_favorites(request, category_slug):
     """Get favorite activities for a specific category."""
-    favorites = Activity.objects.filter(
+    # Get base favorites query
+    favorites_query = Activity.objects.filter(
         user=request.user,
         category__slug=category_slug,
         favorite=True
-    ).values('id', 'name', 'description')
+    )
+    
+    # For consume category, include consumption details
+    if category_slug == 'consume':
+        favorites = []
+        for activity in favorites_query:
+            consumption = Consumption.objects.filter(activity=activity).first()
+            favorite_data = {
+                'id': activity.id,
+                'name': activity.name,
+                'description': consumption.description if consumption else None,
+                'ingredients': consumption.ingredients.split('\n') if consumption and consumption.ingredients else []
+            }
+            favorites.append(favorite_data)
+    else:
+        # For other categories, just get basic info
+        favorites = list(favorites_query.values('id', 'name', 'description'))
     
     # Remove duplicates based on name and description
     unique_favorites = []
     seen = set()
     for favorite in favorites:
-        key = (favorite['name'].lower(), favorite.get('description', '').strip())
+        # For consume items, include ingredients in the uniqueness check
+        if category_slug == 'consume':
+            key = (
+                favorite['name'].lower(),
+                (favorite.get('description') or '').strip(),
+                tuple(sorted(favorite.get('ingredients', [])))
+            )
+        else:
+            key = (favorite['name'].lower(), (favorite.get('description') or '').strip())
+            
         if key not in seen:
             seen.add(key)
             unique_favorites.append(favorite)

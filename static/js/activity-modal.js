@@ -114,6 +114,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         option.value = favorite.id;
                         option.textContent = favorite.name;
                         option.dataset.description = favorite.description || '';
+                        option.dataset.ingredients = favorite.ingredients ? JSON.stringify(favorite.ingredients) : '';
                         favoriteSelect.appendChild(option);
                     });
                 } else {
@@ -195,9 +196,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 activityNameInput.value = selectedOption.textContent;
                 
                 const description = selectedOption.dataset.description;
+                const ingredients = selectedOption.dataset.ingredients;
+                
                 const descriptionInput = document.getElementById('description');
+                const ingredientsInput = document.getElementById('ingredients');
+                
                 if (descriptionInput && description) {
                     descriptionInput.value = description;
+                }
+                
+                if (ingredientsInput && ingredients) {
+                    try {
+                        // Parse the ingredients JSON string and join with newlines
+                        const ingredientsList = JSON.parse(ingredients);
+                        ingredientsInput.value = ingredientsList.join('\n');
+                    } catch (e) {
+                        console.error('Error parsing ingredients:', e);
+                        ingredientsInput.value = '';
+                    }
                 }
             }
         });
@@ -209,10 +225,10 @@ document.addEventListener('DOMContentLoaded', function() {
             favoriteSelect.value = '';
             activityNameInput.value = '';
             const descriptionInput = document.getElementById('description');
+            const ingredientsInput = document.getElementById('ingredients');
             if (descriptionInput) {
                 descriptionInput.value = '';
             }
-            const ingredientsInput = document.getElementById('ingredients');
             if (ingredientsInput) {
                 ingredientsInput.value = '';
             }
