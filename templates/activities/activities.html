@@ -364,19 +364,13 @@
 <script>
     // Wait for DOM to be ready
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM Content Loaded');
-
         // Initialize view buttons
         const viewButtons = document.querySelectorAll('.view-activity');
-        console.log('Number of view buttons found:', viewButtons.length);
 
         viewButtons.forEach(button => {
             button.addEventListener('click', async function(e) {
                 e.preventDefault();
-                console.log('View button clicked');
-                
                 const activityId = this.dataset.activityId;
-                console.log('Activity ID:', activityId);
 
                 try {
                     const response = await fetch(`/activities/${activityId}/`, {
@@ -384,16 +378,12 @@
                             'X-Requested-With': 'XMLHttpRequest'
                         }
                     });
-                    console.log('Fetch response:', response);
 
                     if (!response.ok) {
-                        const errorText = await response.text();
-                        console.error('Server response:', errorText);
                         throw new Error(`Failed to fetch activity: ${response.status}`);
                     }
 
                     const activity = await response.json();
-                    console.log('Activity data:', activity);
 
                     // Update modal content
                     document.getElementById('view-activity-name').textContent = activity.name || 'View Activity';
@@ -465,12 +455,11 @@
                     // Show the modal using Flowbite's data attributes
                     const viewModal = document.getElementById('viewActivityModal');
                     if (viewModal) {
-                        const modal = new window.Flowbite.Modal(viewModal);
+                        const modal = new Modal(viewModal);
                         modal.show();
                     }
 
                 } catch (error) {
-                    console.error('Error in view button click handler:', error);
                     showError('Failed to load activity details. Please try again.');
                 }
             });
