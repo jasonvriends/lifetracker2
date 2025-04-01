@@ -247,11 +247,13 @@
             // Get filter values
             const categoryFilter = document.getElementById('category-filter');
             const statusFilter = document.getElementById('favorite-filter');
+            const searchInput = document.getElementById('activity-search');
             
-            if (!categoryFilter && !statusFilter) return;
+            if (!categoryFilter && !statusFilter && !searchInput) return;
             
             const selectedCategory = categoryFilter ? categoryFilter.value : '';
             const selectedStatus = statusFilter ? statusFilter.value : '';
+            const searchQuery = searchInput ? searchInput.value.toLowerCase().trim() : '';
             
             // Apply filters to each card
             const activityCards = document.querySelectorAll('.activity-card');
@@ -266,18 +268,35 @@
                 if (selectedStatus === 'favorite') {
                     // Show only cards with favorite tag
                     statusMatch = card.querySelector('.favorite-tag') !== null;
-                } else if (selectedStatus === 'recent') {
-                    // Show only recent activities (added in the last 7 days)
-                    const addedText = card.querySelector('.text-xs.text-gray-500')?.textContent || '';
-                    const addedDate = new Date(addedText.replace('Added: ', ''));
-                    const oneWeekAgo = new Date();
-                    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-                    statusMatch = addedDate >= oneWeekAgo;
+                }
+
+                // Check search match
+                let searchMatch = true;
+                if (searchQuery) {
+                    const activityName = card.querySelector('.activity-name')?.textContent.toLowerCase() || '';
+                    const activityDescription = card.querySelector('.text-sm.text-gray-600')?.textContent.toLowerCase() || '';
+                    const ingredients = Array.from(card.querySelectorAll('.bg-gray-100.dark\\:bg-gray-700')).map(el => el.textContent.toLowerCase());
+                    
+                    searchMatch = activityName.includes(searchQuery) || 
+                                activityDescription.includes(searchQuery) ||
+                                ingredients.some(ingredient => ingredient.includes(searchQuery));
                 }
                 
-                // Show card only if it matches both filters
-                card.style.display = categoryMatch && statusMatch ? '' : 'none';
+                // Show card only if it matches all filters
+                card.style.display = categoryMatch && statusMatch && searchMatch ? '' : 'none';
             });
+
+            // Show/hide no results message
+            const visibleCards = document.querySelectorAll('.activity-card[style=""]').length;
+            const noResultsMessage = document.getElementById('no-results-message');
+            
+            if (noResultsMessage) {
+                if (visibleCards === 0 && (selectedCategory || selectedStatus || searchQuery)) {
+                    noResultsMessage.classList.remove('hidden');
+                } else {
+                    noResultsMessage.classList.add('hidden');
+                }
+            }
         }
 
         // Add event listeners to filters
@@ -290,6 +309,16 @@
         const statusFilter = document.getElementById('favorite-filter');
         if (statusFilter) {
             statusFilter.addEventListener('change', filterActivities);
+        }
+
+        // Add event listener to search input with debounce
+        const searchInput = document.getElementById('activity-search');
+        if (searchInput) {
+            let debounceTimer;
+            searchInput.addEventListener('input', function() {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(filterActivities, 300); // Wait 300ms after user stops typing
+            });
         }
 
         // Run initial filter
