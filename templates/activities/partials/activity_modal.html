@@ -27,20 +27,20 @@
                             <div class="mb-4">
                                 <label for="category" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Category</label>
                                 <select id="category" name="category" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required>
-                                    <option value="" {% if not default_category %}selected{% endif %} {% if default_category %}disabled{% endif %}>Select category</option>
-                                    <option value="consume" {% if default_category == 'consume' %}selected{% endif %}>Consume</option>
-                                    <!-- Add more categories as needed -->
+                                    <option value="" selected>Select category</option>
+                                    {% for category in categories %}
+                                    <option value="{{ category.slug }}">{{ category.name }}</option>
+                                    {% endfor %}
                                 </select>
                             </div>
                             
                             <div class="mb-4">
                                 <label for="favorite-activities" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Favorites</label>
                                 <div class="flex space-x-2">
-                                    <select id="favorite-activities" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" {% if not default_category %}disabled{% endif %}>
-                                        <option value="" selected>{% if default_category %}Select a favorite{% else %}Select a category first{% endif %}</option>
-                                        <!-- Options will be populated by JavaScript -->
+                                    <select id="favorite-activities" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" disabled>
+                                        <option value="" selected>Select a category first</option>
                                     </select>
-                                    <button type="button" id="clear-favorite" class="text-gray-500 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-4 py-2.5 text-center inline-flex items-center dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-600" {% if not default_category %}disabled{% endif %}>
+                                    <button type="button" id="clear-favorite" class="text-gray-500 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-4 py-2.5 text-center inline-flex items-center dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-600" disabled>
                                         Clear
                                     </button>
                                 </div>
@@ -49,17 +49,17 @@
                         
                         <!-- Right Column - Dynamic Fields -->
                         <div>
-                            <div id="dynamic-fields" class="{% if not default_category %}hidden{% endif %}">
+                            <div id="dynamic-fields" class="hidden">
                                 <!-- Basic fields that show for all categories -->
                                 <div id="basic-fields">
                                     <div class="mb-4">
-                                        <label for="activity-name" id="activity-name-label" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{% if default_category == 'consume' %}Consume Name{% else %}Name{% endif %}</label>
-                                        <input type="text" id="activity-name" name="activity-name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="{% if default_category == 'consume' %}What did you consume?{% else %}Activity name{% endif %}" required>
+                                        <label for="activity-name" id="activity-name-label" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
+                                        <input type="text" id="activity-name" name="activity-name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Activity name" required>
                                     </div>
                                 </div>
                                 
                                 <!-- Fields for consume category -->
-                                <div id="consume-fields" class="{% if default_category != 'consume' %}hidden{% endif %}">
+                                <div id="consume-fields" class="hidden">
                                     <div class="mb-4">
                                         <label for="description" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Description (optional)</label>
                                         <textarea id="description" name="description" rows="2" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Description"></textarea>

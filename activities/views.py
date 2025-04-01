@@ -17,13 +17,9 @@ def activities_view(request):
     # Get all activities for the current user
     activities = Activity.objects.filter(user=request.user)
     
-    # Check if there's a default category in the query string
-    default_category = request.GET.get('category', None)
-    
     context = {
         'activities': activities,
         'categories': categories,
-        'default_category': default_category,
     }
     return render(request, 'activities/activities.html', context)
 
@@ -64,21 +60,22 @@ def create_activity(request):
             
             # For consumption activities, also check description and ingredients
             if existing_favorite and category_slug == 'consume':
-                description = data.get('description', '')
-                ingredients = data.get('ingredients', [])
+                description = data.get('description', '').strip()
+                ingredients = [i.strip() for i in data.get('ingredients', []) if i.strip()]
                 
                 # Get existing consumption details
                 existing_consumption = Consumption.objects.filter(activity=existing_favorite).first()
                 
                 if existing_consumption:
-                    existing_description = existing_consumption.description or ''
+                    existing_description = (existing_consumption.description or '').strip()
                     existing_ingredients = [i.strip() for i in (existing_consumption.ingredients or '').split('\n') if i.strip()]
                     
                     # Only consider it a duplicate if name, description, and ingredients match
-                    ingredients_match = set(ingredients) == set(existing_ingredients)
-                    description_match = description.strip() == existing_description.strip()
+                    # If either the new or existing activity has no description/ingredients, don't consider them in duplicate check
+                    description_match = (not description and not existing_description) or description == existing_description
+                    ingredients_match = (not ingredients and not existing_ingredients) or set(ingredients) == set(existing_ingredients)
                     
-                    if not (ingredients_match and description_match):
+                    if not (description_match and ingredients_match):
                         # If details differ, it's not a true duplicate
                         existing_favorite = None
             
@@ -166,4 +163,13 @@ def get_favorites(request, category_slug):
         favorite=True
     ).values('id', 'name', 'description')
     
-    return JsonResponse(list(favorites), safe=False) 
+    # Remove duplicates based on name and description
+    unique_favorites = []
+    seen = set()
+    for favorite in favorites:
+        key = (favorite['name'].lower(), favorite.get('description', '').strip())
+        if key not in seen:
+            seen.add(key)
+            unique_favorites.append(favorite)
+    
+    return JsonResponse(unique_favorites, safe=False) 
