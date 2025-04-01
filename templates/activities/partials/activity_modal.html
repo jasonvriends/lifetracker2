@@ -1,0 +1,241 @@
+<!-- Activity Modal -->
+<div id="activityModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative w-full max-w-2xl max-h-full">
+        <!-- Modal content -->
+        <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+            <!-- Modal header -->
+            <div class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
+                <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                    Add Activity
+                </h3>
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="activityModal">
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                    </svg>
+                    <span class="sr-only">Close modal</span>
+                </button>
+            </div>
+            <!-- Modal body -->
+            <div class="modal-body p-6">
+                <!-- Activity Form -->
+                <form id="activityForm" class="space-y-6">
+                    {% csrf_token %}
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <!-- Left Column - Category and Favorites -->
+                        <div>
+                            <div class="mb-4">
+                                <label for="category" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Category</label>
+                                <select id="category" name="category" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required>
+                                    <option value="" {% if not default_category %}selected{% endif %} {% if default_category %}disabled{% endif %}>Select category</option>
+                                    <option value="consume" {% if default_category == 'consume' %}selected{% endif %}>Consume</option>
+                                    <!-- Add more categories as needed -->
+                                </select>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label for="favorite-activities" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Favorites</label>
+                                <div class="flex space-x-2">
+                                    <select id="favorite-activities" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" {% if not default_category %}disabled{% endif %}>
+                                        <option value="" selected>{% if default_category %}Select a favorite{% else %}Select a category first{% endif %}</option>
+                                        <!-- Options will be populated by JavaScript -->
+                                    </select>
+                                    <button type="button" id="clear-favorite" class="text-gray-500 bg-gray-200 hover:bg-gray-300 focus:ring-4 focus:outline-none focus:ring-gray-100 font-medium rounded-lg text-sm px-4 py-2.5 text-center inline-flex items-center dark:bg-gray-700 dark:hover:bg-gray-600 dark:focus:ring-gray-600" {% if not default_category %}disabled{% endif %}>
+                                        Clear
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Column - Dynamic Fields -->
+                        <div>
+                            <div id="dynamic-fields" class="{% if not default_category %}hidden{% endif %}">
+                                <!-- Basic fields that show for all categories -->
+                                <div id="basic-fields">
+                                    <div class="mb-4">
+                                        <label for="activity-name" id="activity-name-label" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">{% if default_category == 'consume' %}Consume Name{% else %}Name{% endif %}</label>
+                                        <input type="text" id="activity-name" name="activity-name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="{% if default_category == 'consume' %}What did you consume?{% else %}Activity name{% endif %}" required>
+                                    </div>
+                                </div>
+                                
+                                <!-- Fields for consume category -->
+                                <div id="consume-fields" class="{% if default_category != 'consume' %}hidden{% endif %}">
+                                    <div class="mb-4">
+                                        <label for="description" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Description (optional)</label>
+                                        <textarea id="description" name="description" rows="2" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Description"></textarea>
+                                    </div>
+                                    
+                                    <div class="mb-4">
+                                        <label for="ingredients" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Ingredients (optional - one per line)</label>
+                                        <textarea id="ingredients" name="ingredients" rows="4" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Enter ingredients, one per line:"></textarea>
+                                    </div>
+                                    
+                                    <div class="grid grid-cols-2 gap-4">
+                                        <div class="mb-4">
+                                            <label for="consume-date" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date</label>
+                                            <div class="relative">
+                                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                                    <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
+                                                    </svg>
+                                                </div>
+                                                <input datepicker type="text" id="consume-date" name="consume-date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full pl-10 p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="Select date" required>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="mb-4">
+                                            <label for="consume-time" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Time</label>
+                                            <input type="time" id="consume-time" name="consume-time" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="flex items-center mb-4">
+                                    <label class="inline-flex items-center cursor-pointer">
+                                        <input id="save-favorite" type="checkbox" name="save-favorite" value="1" class="sr-only peer">
+                                        <div class="relative w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
+                                        <span class="ms-3 text-sm font-medium text-gray-900 dark:text-white">Save as favorite</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Save Activity</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // DOM elements
+        const categorySelect = document.getElementById('category');
+        const dynamicFields = document.getElementById('dynamic-fields');
+        const consumeFields = document.getElementById('consume-fields');
+        const favoriteSelect = document.getElementById('favorite-activities');
+        const clearFavoriteBtn = document.getElementById('clear-favorite');
+        const activityNameLabel = document.getElementById('activity-name-label');
+        const activityNameInput = document.getElementById('activity-name');
+        const consumeDateInput = document.getElementById('consume-date');
+        const consumeTimeInput = document.getElementById('consume-time');
+        
+        // Initialize date and time with current values
+        function setCurrentDateTime() {
+            const now = new Date();
+            
+            // Format date (YYYY-MM-DD)
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const formattedDate = `${year}-${month}-${day}`;
+            
+            // Format time (HH:MM)
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const formattedTime = `${hours}:${minutes}`;
+            
+            // Set values
+            if (consumeDateInput) {
+                consumeDateInput.value = formattedDate;
+                // Add formatted date for datepicker display
+                consumeDateInput.setAttribute('data-date', formattedDate);
+            }
+            
+            if (consumeTimeInput) {
+                consumeTimeInput.value = formattedTime;
+            }
+        }
+        
+        // Function to handle category change
+        function handleCategoryChange() {
+            const category = categorySelect.value;
+            console.log('Category changed to:', category);
+            
+            if (category) {
+                // Show dynamic fields
+                if (dynamicFields) dynamicFields.classList.remove('hidden');
+                
+                // Update UI based on category
+                if (category === 'consume') {
+                    if (activityNameLabel) activityNameLabel.textContent = 'Consume Name';
+                    if (activityNameInput) activityNameInput.placeholder = 'What did you consume?';
+                    if (consumeFields) consumeFields.classList.remove('hidden');
+                    
+                    // Initialize date/time if this is the consume category
+                    setCurrentDateTime();
+                } else {
+                    if (activityNameLabel) activityNameLabel.textContent = 'Name';
+                    if (activityNameInput) activityNameInput.placeholder = 'Activity name';
+                    if (consumeFields) consumeFields.classList.add('hidden');
+                }
+                
+                // Enable favorites
+                if (favoriteSelect) favoriteSelect.disabled = false;
+                if (clearFavoriteBtn) clearFavoriteBtn.disabled = false;
+            } else {
+                // Hide dynamic fields
+                if (dynamicFields) dynamicFields.classList.add('hidden');
+                
+                // Disable favorites
+                if (favoriteSelect) favoriteSelect.disabled = true;
+                if (clearFavoriteBtn) clearFavoriteBtn.disabled = true;
+            }
+        }
+        
+        // Set up event listener for category select
+        if (categorySelect) {
+            categorySelect.addEventListener('change', handleCategoryChange);
+            
+            // Initialize if category is already selected
+            if (categorySelect.value) {
+                handleCategoryChange();
+            }
+        }
+        
+        // Initialize Flowbite datepicker if available
+        if (typeof Datepicker !== 'undefined' && consumeDateInput) {
+            const datepicker = new Datepicker(consumeDateInput, {
+                // Options
+                format: 'yyyy-mm-dd',
+                autohide: true
+            });
+        }
+        
+        // Set up a MutationObserver to detect when the modal becomes visible
+        const modal = document.getElementById('activityModal');
+        if (modal) {
+            const observer = new MutationObserver(function(mutations) {
+                mutations.forEach(function(mutation) {
+                    if (mutation.type === 'attributes' && 
+                        mutation.attributeName === 'class' && 
+                        !modal.classList.contains('hidden')) {
+                        console.log('Modal is now visible');
+                        
+                        // Handle category if already selected
+                        if (categorySelect && categorySelect.value) {
+                            handleCategoryChange();
+                        }
+                    }
+                });
+            });
+            
+            observer.observe(modal, { attributes: true });
+        }
+        
+        // Handle modal open event directly (for Flowbite)
+        document.addEventListener('click', function(event) {
+            if (event.target.hasAttribute('data-modal-toggle') && 
+                event.target.getAttribute('data-modal-toggle') === 'activityModal') {
+                
+                // Slight delay to ensure modal is open
+                setTimeout(() => {
+                    if (categorySelect && categorySelect.value) {
+                        handleCategoryChange();
+                    }
+                }, 100);
+            }
+        });
+    });
+</script> 
