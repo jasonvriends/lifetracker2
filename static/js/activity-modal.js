@@ -15,9 +15,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const consumeDateInput = document.getElementById('consume-date');
     const consumeTimeInput = document.getElementById('consume-time');
     
-    console.log('Activity Modal JS loaded');
-    console.log('Category select found:', !!categorySelect);
-    
     // Function to set current date and time from user's timezone
     function setCurrentDateTime() {
         if (!consumeDateInput || !consumeTimeInput) return;
@@ -35,8 +32,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const hours = String(now.getHours()).padStart(2, '0');
         const minutes = String(now.getMinutes()).padStart(2, '0');
         const formattedTime = `${hours}:${minutes}`;
-        
-        console.log('Setting date/time to:', formattedDate, formattedTime);
         
         // Set values
         consumeDateInput.value = formattedDate;
@@ -56,16 +51,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 clearBtn: false,
                 todayHighlight: true
             });
-            console.log('Datepicker initialized');
         } catch (e) {
-            console.error('Error initializing datepicker:', e);
+            // Error initializing datepicker
         }
     }
     
     // Direct manipulation function - simplified to ensure reliability
     function updateFormForCategory(category) {
-        console.log('Direct update for category:', category);
-        
         // Show/hide dynamic fields
         if (category) {
             if (dynamicFields) dynamicFields.classList.remove('hidden');
@@ -126,7 +118,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             })
             .catch(error => {
-                console.error('Error loading favorites:', error);
                 const option = document.createElement('option');
                 option.value = "";
                 option.textContent = "Error loading favorites";
@@ -137,18 +128,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Directly set up category change handler
     if (categorySelect) {
-        console.log('Setting up category change handler');
-        
         // When category changes, update the form
         categorySelect.addEventListener('change', function() {
             const category = this.value;
-            console.log('Category changed to:', category);
             updateFormForCategory(category);
         });
         
         // If there's already a value, trigger the change
         if (categorySelect.value) {
-            console.log('Initial category:', categorySelect.value);
             updateFormForCategory(categorySelect.value);
         }
     }
@@ -162,7 +149,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (mutation.type === 'attributes' && 
                     mutation.attributeName === 'class' && 
                     !activityModal.classList.contains('hidden')) {
-                    console.log('Modal visible, checking category');
                     if (categorySelect && categorySelect.value) {
                         updateFormForCategory(categorySelect.value);
                     }
@@ -171,20 +157,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         observer.observe(activityModal, { attributes: true });
-        
-        // Also handle direct clicks on modal toggle buttons
-        document.addEventListener('click', function(event) {
-            if (event.target.hasAttribute('data-modal-toggle') && 
-                event.target.getAttribute('data-modal-toggle') === 'activityModal') {
-                
-                // Slight delay to ensure modal is open
-                setTimeout(() => {
-                    if (categorySelect && categorySelect.value) {
-                        updateFormForCategory(categorySelect.value);
-                    }
-                }, 100);
-            }
-        });
     }
     
     // Event handler for favorite selection
@@ -211,7 +183,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         const ingredientsList = JSON.parse(ingredients);
                         ingredientsInput.value = ingredientsList.join('\n');
                     } catch (e) {
-                        console.error('Error parsing ingredients:', e);
                         ingredientsInput.value = '';
                     }
                 }
@@ -322,8 +293,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(data => {
-                console.log('Activity saved successfully:', data);
-                
                 // Show success message
                 showStatusMessage('success', data.message || 'Activity saved successfully!');
                 
@@ -337,7 +306,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.location.reload();
             })
             .catch(error => {
-                console.error('Error:', error);
                 showStatusMessage('error', error.message || 'An error occurred while saving the activity');
             })
             .finally(() => {

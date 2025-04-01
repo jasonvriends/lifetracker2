@@ -8,7 +8,6 @@
 {# Move JavaScript to the head to ensure it loads before content #}
 {% block extra_head %}
 <script>
-    console.log('JavaScript in head is loading');
 </script>
 {% endblock %}
 
@@ -218,64 +217,48 @@
 
 <!-- Then load our custom scripts -->
 <script>
-    // Test alert to verify JavaScript is running
-    alert('JavaScript is loading');
-    console.log('Starting JavaScript execution');
-
     // Wrap everything in DOMContentLoaded
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('DOM Content Loaded - Activities page');
         
         // Initialize Flowbite
         if (typeof flowbite !== 'undefined') {
-            console.log('Flowbite is available');
+            // Flowbite is available
         } else {
-            console.error('Flowbite is not loaded');
+            // Flowbite is not loaded
         }
 
         // Simple test function for filtering
         function filterActivities() {
-            console.log('filterActivities called');
             const categoryFilter = document.getElementById('category-filter');
             if (!categoryFilter) {
-                console.error('Category filter element not found in filterActivities()');
                 return;
             }
             
             const selectedCategory = categoryFilter.value;
-            console.log('Filtering by category:', selectedCategory);
             
             const activityCards = document.querySelectorAll('.activity-card');
-            console.log('Found activity cards:', activityCards.length);
             
             activityCards.forEach(card => {
                 const cardCategory = card.getAttribute('data-category');
                 const shouldShow = !selectedCategory || selectedCategory === '' || cardCategory === selectedCategory;
                 card.style.display = shouldShow ? '' : 'none';
-                console.log('Card category:', cardCategory, 'Should show:', shouldShow);
             });
         }
 
         // Add event listeners to filters
         const categoryFilter = document.getElementById('category-filter');
         if (categoryFilter) {
-            console.log('Found category filter, adding event listeners');
-            
             // Add click handler to test if events work at all
             categoryFilter.addEventListener('click', function() {
-                console.log('Category filter clicked');
+                // Category filter clicked
             });
             
             categoryFilter.addEventListener('change', function() {
-                console.log('Category changed to:', this.value);
                 filterActivities();
             });
-        } else {
-            console.error('Category filter not found during setup');
         }
 
         // Run initial filter
-        console.log('Running initial filter');
         filterActivities();
 
         // Initialize delete modal
@@ -336,9 +319,6 @@
                 successAlert.classList.add('hidden');
             }, 5000);
         }
-        
-        // Test if JavaScript is running at all
-        console.log('DOM Content Loaded');
 
         // Activity modal functionality
         const categorySelect = document.getElementById('category');
@@ -352,8 +332,6 @@
                 // Ensure form is properly initialized when modal opens
                 setTimeout(() => {
                     if (categorySelect && categorySelect.value) {
-                        console.log('Modal opened, selected category:', categorySelect.value);
-                        
                         // Show dynamic fields and appropriate category fields
                         if (dynamicFields) dynamicFields.classList.remove('hidden');
                         
