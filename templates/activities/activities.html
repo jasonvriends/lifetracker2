@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load tz %}
 {# Temporarily commenting out custom filters #}
 {# {% load custom_filters %} #}
 
@@ -76,7 +77,6 @@
                     <select id="favorite-filter" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white">
                         <option value="">All Activities</option>
                         <option value="favorite">Favorites Only</option>
-                        <option value="recent">Recently Added</option>
                     </select>
                 </div>
                 <div>
@@ -111,7 +111,7 @@
                                 {% endif %}
                             </div>
                         </div>
-                        <span class="text-sm text-gray-400">Added: {{ activity.created_at|date:"M d, Y" }}</span>
+                        <span class="text-sm text-gray-400">Added: {{ activity.created_at|localtime|date:"M d, Y" }}</span>
                     </div>
 
                     {% if activity.description %}
@@ -137,7 +137,7 @@
                                 {% endif %}
                                 
                                 <p class="text-xs text-gray-400 mt-2">
-                                    <span class="font-medium">Consumed:</span> {{ consumption.consumed_at|date:"F j, Y" }} at {{ consumption.consumed_at|time:"g:i A" }}
+                                    <span class="font-medium">Consumed:</span> {{ consumption.consumed_at|localtime|date:"F j, Y" }} at {{ consumption.consumed_at|localtime|time:"g:i A" }}
                                 </p>
                             {% endif %}
                         {% endwith %}
