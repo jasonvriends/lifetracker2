@@ -226,4 +226,60 @@ def get_favorites(request, category_slug):
             seen.add(key)
             unique_favorites.append(favorite)
     
-    return JsonResponse(unique_favorites, safe=False) 
+    return JsonResponse(unique_favorites, safe=False)
+
+@login_required
+@require_POST
+def update_activity(request, pk):
+    """Update an activity."""
+    activity = get_object_or_404(Activity, pk=pk, user=request.user)
+    
+    try:
+        # Validate required fields
+        name = request.POST.get('name')
+        if not name:
+            return JsonResponse({
+                'success': False,
+                'error': 'Name is required'
+            }, status=400)
+        
+        # Update basic activity fields
+        activity.name = name
+        activity.description = request.POST.get('description', '')
+        activity.favorite = request.POST.get('favorite') == 'on'
+        activity.save()
+        
+        # Handle consumption-specific fields
+        if activity.category.slug == 'consume':
+            consumption = activity.consumptions.first()
+            if not consumption:
+                consumption = Consumption(activity=activity)
+            
+            consumption.description = request.POST.get('consumption_description', '')
+            consumption.ingredients = request.POST.get('ingredients', '')
+            
+            # Combine date and time for consumed_at
+            consumed_date = request.POST.get('consumed_at_date')
+            consumed_time = request.POST.get('consumed_at_time')
+            if consumed_date and consumed_time:
+                try:
+                    consumed_at = datetime.strptime(f"{consumed_date} {consumed_time}", "%Y-%m-%d %H:%M")
+                    consumption.consumed_at = timezone.make_aware(consumed_at)
+                except ValueError as e:
+                    return JsonResponse({
+                        'success': False,
+                        'error': f'Invalid date/time format: {str(e)}'
+                    }, status=400)
+            
+            consumption.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Activity updated successfully'
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=400) 
