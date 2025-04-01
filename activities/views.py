@@ -27,6 +27,34 @@ def activities_view(request):
 def activity_detail(request, pk):
     """View for a single activity."""
     activity = get_object_or_404(Activity, pk=pk, user=request.user)
+    
+    # Return JSON for AJAX requests
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        activity_data = {
+            'id': activity.id,
+            'name': activity.name,
+            'description': activity.description,
+            'favorite': activity.favorite,
+            'category': {
+                'name': activity.category.name,
+                'slug': activity.category.slug,
+                'color': activity.category.color
+            }
+        }
+        
+        # Add consumption details if applicable
+        if activity.category.slug == 'consume':
+            consumption = activity.consumptions.first()
+            if consumption:
+                activity_data['consumptions'] = [{
+                    'description': consumption.description,
+                    'ingredients': consumption.ingredients.split('\n') if consumption.ingredients else [],
+                    'consumed_at': consumption.consumed_at.isoformat() if consumption.consumed_at else None
+                }]
+        
+        return JsonResponse(activity_data)
+    
+    # Return HTML for regular requests
     return render(request, 'activities/activity_detail.html', {'activity': activity})
 
 @require_POST

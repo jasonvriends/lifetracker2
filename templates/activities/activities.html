@@ -8,8 +8,10 @@
 
 {# Move JavaScript to the head to ensure it loads before content #}
 {% block extra_head %}
-<script>
-</script>
+<!-- Load Flowbite CSS -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.css" rel="stylesheet">
+<!-- Load Font Awesome from CDN -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 {% endblock %}
 
 {% block content %}
@@ -158,18 +160,31 @@
                     <!-- Card Footer -->
                     <div class="px-4 py-3 bg-gray-100 dark:bg-gray-700 border-t border-gray-200 dark:border-gray-600">
                         <div class="flex justify-end space-x-2">
-                            <button class="view-activity text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200" title="View Details">
+                            <button class="view-activity text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200" 
+                                    title="View Details"
+                                    data-modal-target="viewActivityModal" 
+                                    data-modal-toggle="viewActivityModal"
+                                    data-activity-id="{{ activity.id }}">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 </svg>
                             </button>
-                            <button class="edit-activity text-gray-600 dark:text-gray-300 hover:text-yellow-600 dark:hover:text-yellow-400 p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200" title="Edit">
+                            <button class="edit-activity text-gray-600 dark:text-gray-300 hover:text-yellow-600 dark:hover:text-yellow-400 p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200" 
+                                    title="Edit"
+                                    data-modal-target="editActivityModal" 
+                                    data-modal-toggle="editActivityModal"
+                                    data-activity-id="{{ activity.id }}">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
                             </button>
-                            <button class="delete-activity text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200" title="Delete">
+                            <button class="delete-activity text-gray-600 dark:text-gray-300 hover:text-red-600 dark:hover:text-red-400 p-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200" 
+                                    title="Delete"
+                                    data-modal-target="deleteModal" 
+                                    data-modal-toggle="deleteModal"
+                                    data-activity-id="{{ activity.id }}"
+                                    data-activity-name="{{ activity.name }}">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
@@ -178,6 +193,121 @@
                     </div>
                 </div>
             {% endfor %}
+        </div>
+        
+        <!-- View Activity Modal -->
+        <div id="viewActivityModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+            <div class="relative w-full max-w-2xl max-h-full">
+                <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                    <!-- Modal header -->
+                    <div class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
+                        <h3 class="text-xl font-semibold text-gray-900 dark:text-white" id="view-activity-name"></h3>
+                        <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="viewActivityModal">
+                            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                            </svg>
+                            <span class="sr-only">Close modal</span>
+                        </button>
+                    </div>
+                    <!-- Modal body -->
+                    <div class="p-6 space-y-6">
+                        <!-- Error Message -->
+                        <div id="error-message" class="hidden p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert"></div>
+                        
+                        <!-- Activity Details -->
+                        <div class="space-y-4">
+                            <div>
+                                <h4 class="text-lg font-medium text-gray-900 dark:text-white">Category</h4>
+                                <p class="text-base text-gray-500 dark:text-gray-400" id="view-activity-category"></p>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-medium text-gray-900 dark:text-white">Description</h4>
+                                <p class="text-base text-gray-500 dark:text-gray-400" id="view-activity-description"></p>
+                            </div>
+                            <div>
+                                <h4 class="text-lg font-medium text-gray-900 dark:text-white">Favorite</h4>
+                                <p class="text-base text-gray-500 dark:text-gray-400" id="view-activity-favorite"></p>
+                            </div>
+                            
+                            <!-- Consume-specific fields -->
+                            <div id="view-activity-consume-fields" class="hidden">
+                                <div>
+                                    <h4 class="text-lg font-medium text-gray-900 dark:text-white">Ingredients</h4>
+                                    <div class="flex flex-wrap gap-2 mt-2" id="view-activity-ingredients"></div>
+                                </div>
+                                <div class="mt-6">
+                                    <h4 class="text-lg font-medium text-gray-900 dark:text-white">Consumed At</h4>
+                                    <p class="text-base text-gray-500 dark:text-gray-400" id="view-activity-consumed-at"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Modal footer -->
+                    <div class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
+                        <button data-modal-hide="viewActivityModal" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Activity Modal -->
+        <div id="editActivityModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+            <div class="relative w-full max-w-2xl max-h-full">
+                <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+                    <form id="edit-activity-form" method="post">
+                        {% csrf_token %}
+                        <!-- Modal header -->
+                        <div class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
+                            <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
+                                Edit Activity
+                            </h3>
+                            <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="editActivityModal">
+                                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                                </svg>
+                                <span class="sr-only">Close modal</span>
+                            </button>
+                        </div>
+                        <!-- Modal body -->
+                        <div class="p-6 space-y-6">
+                            <input type="hidden" id="edit-category" name="category">
+                            <div>
+                                <label for="edit-name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
+                                <input type="text" id="edit-name" name="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required>
+                            </div>
+                            <div>
+                                <label for="edit-description" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Description</label>
+                                <textarea id="edit-description" name="description" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"></textarea>
+                            </div>
+                            <div class="flex items-center">
+                                <input id="edit-favorite" type="checkbox" name="favorite" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                <label for="edit-favorite" class="ml-2 text-sm font-medium text-gray-900 dark:text-white">Mark as favorite</label>
+                            </div>
+                            <div id="edit-consume-fields" class="hidden space-y-6">
+                                <div>
+                                    <label for="edit-ingredients" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Ingredients (one per line)</label>
+                                    <textarea id="edit-ingredients" name="ingredients" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"></textarea>
+                                </div>
+                                <div class="grid gap-6 mb-6 md:grid-cols-2">
+                                    <div>
+                                        <label for="edit-consumed-at-date" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date consumed</label>
+                                        <input type="date" id="edit-consumed-at-date" name="consumed_at_date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
+                                    </div>
+                                    <div>
+                                        <label for="edit-consumed-at-time" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Time consumed</label>
+                                        <input type="time" id="edit-consumed-at-time" name="consumed_at_time" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Modal footer -->
+                        <div class="flex items-center p-6 space-x-2 border-t border-gray-200 rounded-b dark:border-gray-600">
+                            <button type="submit" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Save changes</button>
+                            <button type="button" class="text-gray-500 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-blue-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600" data-modal-hide="editActivityModal">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
         
         <!-- Delete Confirmation Modal -->
@@ -227,187 +357,133 @@
 {% endblock %}
 
 {% block extra_js %}
-<!-- First load Flowbite -->
+<!-- Load Flowbite JavaScript -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.1/flowbite.min.js"></script>
 
 <!-- Then load our custom scripts -->
 <script>
-    // Wrap everything in DOMContentLoaded
+    // Wait for DOM to be ready
     document.addEventListener('DOMContentLoaded', function() {
-        
-        // Initialize Flowbite
-        if (typeof flowbite !== 'undefined') {
-            // Flowbite is available
-        } else {
-            // Flowbite is not loaded
-        }
+        console.log('DOM Content Loaded');
 
-        // Simple function for filtering
-        function filterActivities() {
-            // Get filter values
-            const categoryFilter = document.getElementById('category-filter');
-            const statusFilter = document.getElementById('favorite-filter');
-            const searchInput = document.getElementById('activity-search');
-            
-            if (!categoryFilter && !statusFilter && !searchInput) return;
-            
-            const selectedCategory = categoryFilter ? categoryFilter.value : '';
-            const selectedStatus = statusFilter ? statusFilter.value : '';
-            const searchQuery = searchInput ? searchInput.value.toLowerCase().trim() : '';
-            
-            // Apply filters to each card
-            const activityCards = document.querySelectorAll('.activity-card');
-            
-            activityCards.forEach(card => {
-                // Check category match
-                const cardCategory = card.getAttribute('data-category');
-                const categoryMatch = !selectedCategory || selectedCategory === '' || cardCategory === selectedCategory;
+        // Initialize view buttons
+        const viewButtons = document.querySelectorAll('.view-activity');
+        console.log('Number of view buttons found:', viewButtons.length);
+
+        viewButtons.forEach(button => {
+            button.addEventListener('click', async function(e) {
+                e.preventDefault();
+                console.log('View button clicked');
                 
-                // Check status match
-                let statusMatch = true;
-                if (selectedStatus === 'favorite') {
-                    // Show only cards with favorite tag
-                    statusMatch = card.querySelector('.favorite-tag') !== null;
-                }
+                const activityId = this.dataset.activityId;
+                console.log('Activity ID:', activityId);
 
-                // Check search match
-                let searchMatch = true;
-                if (searchQuery) {
-                    const activityName = card.querySelector('.activity-name')?.textContent.toLowerCase() || '';
-                    const activityDescription = card.querySelector('.text-sm.text-gray-600')?.textContent.toLowerCase() || '';
-                    const ingredients = Array.from(card.querySelectorAll('.bg-gray-100.dark\\:bg-gray-700')).map(el => el.textContent.toLowerCase());
-                    
-                    searchMatch = activityName.includes(searchQuery) || 
-                                activityDescription.includes(searchQuery) ||
-                                ingredients.some(ingredient => ingredient.includes(searchQuery));
-                }
-                
-                // Show card only if it matches all filters
-                card.style.display = categoryMatch && statusMatch && searchMatch ? '' : 'none';
-            });
+                try {
+                    const response = await fetch(`/activities/${activityId}/`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    });
+                    console.log('Fetch response:', response);
 
-            // Show/hide no results message
-            const visibleCards = document.querySelectorAll('.activity-card[style=""]').length;
-            const noResultsMessage = document.getElementById('no-results-message');
-            
-            if (noResultsMessage) {
-                if (visibleCards === 0 && (selectedCategory || selectedStatus || searchQuery)) {
-                    noResultsMessage.classList.remove('hidden');
-                } else {
-                    noResultsMessage.classList.add('hidden');
-                }
-            }
-        }
-
-        // Add event listeners to filters
-        const categoryFilter = document.getElementById('category-filter');
-        if (categoryFilter) {
-            categoryFilter.addEventListener('change', filterActivities);
-        }
-        
-        // Add event listener to status filter
-        const statusFilter = document.getElementById('favorite-filter');
-        if (statusFilter) {
-            statusFilter.addEventListener('change', filterActivities);
-        }
-
-        // Add event listener to search input with debounce
-        const searchInput = document.getElementById('activity-search');
-        if (searchInput) {
-            let debounceTimer;
-            searchInput.addEventListener('input', function() {
-                clearTimeout(debounceTimer);
-                debounceTimer = setTimeout(filterActivities, 300); // Wait 300ms after user stops typing
-            });
-        }
-
-        // Run initial filter
-        filterActivities();
-
-        // Initialize delete modal
-        const deleteModal = document.getElementById('deleteModal');
-        if (deleteModal && typeof flowbite !== 'undefined') {
-            const modalOptions = {
-                backdrop: 'dynamic',
-                backdropClasses: 'bg-gray-900/50 dark:bg-gray-900/80 fixed inset-0 z-40',
-                closable: true
-            };
-            const modal = new flowbite.Modal(deleteModal, modalOptions);
-        }
-        
-        // Delete activity functionality
-        const deleteButtons = document.querySelectorAll('.delete-activity');
-        deleteButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                const activityId = this.closest('.activity-card').dataset.id;
-                const activityName = this.closest('.activity-card').querySelector('.activity-name').textContent;
-                
-                // Set values in the modal
-                document.getElementById('delete-activity-id').value = activityId;
-                document.getElementById('delete-activity-name').textContent = activityName;
-                
-                // Set the form action
-                document.getElementById('delete-form').action = `/activities/${activityId}/delete/`;
-                
-                // Show the modal using Flowbite
-                const deleteModal = document.getElementById('deleteModal');
-                if (typeof flowbite !== 'undefined' && deleteModal) {
-                    const modalInstance = flowbite.Modal.getInstance(deleteModal);
-                    if (modalInstance) {
-                        modalInstance.show();
-                    } else {
-                        const newModal = new flowbite.Modal(deleteModal, {
-                            backdrop: 'dynamic',
-                            backdropClasses: 'bg-gray-900/50 dark:bg-gray-900/80 fixed inset-0 z-40',
-                            closable: true
-                        });
-                        newModal.show();
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error('Server response:', errorText);
+                        throw new Error(`Failed to fetch activity: ${response.status}`);
                     }
-                }
-            });
-        });
-        
-        // Initialize dismiss buttons
-        const dismissButton = document.getElementById('dismiss-success');
-        if (dismissButton) {
-            dismissButton.addEventListener('click', function() {
-                document.getElementById('success-alert').classList.add('hidden');
-            });
-        }
-        
-        // Auto-hide success message after 5 seconds
-        const successAlert = document.getElementById('success-alert');
-        if (successAlert && !successAlert.classList.contains('hidden')) {
-            setTimeout(() => {
-                successAlert.classList.add('hidden');
-            }, 5000);
-        }
 
-        // Activity modal functionality
-        const categorySelect = document.getElementById('category');
-        const dynamicFields = document.getElementById('dynamic-fields');
-        const consumeFields = document.getElementById('consume-fields');
-        
-        // Direct handler for "Add Activity" button
-        const addActivityButtons = document.querySelectorAll('[data-modal-target="activityModal"]');
-        addActivityButtons.forEach(button => {
-            button.addEventListener('click', function() {
-                // Ensure form is properly initialized when modal opens
-                setTimeout(() => {
-                    if (categorySelect && categorySelect.value) {
-                        // Show dynamic fields and appropriate category fields
-                        if (dynamicFields) dynamicFields.classList.remove('hidden');
-                        
-                        if (categorySelect.value === 'consume') {
-                            if (consumeFields) consumeFields.classList.remove('hidden');
+                    const activity = await response.json();
+                    console.log('Activity data:', activity);
+
+                    // Update modal content
+                    document.getElementById('view-activity-name').textContent = activity.name || 'View Activity';
+                    
+                    // Update category tag
+                    const categoryTag = document.getElementById('view-activity-category');
+                    if (categoryTag && activity.category) {
+                        categoryTag.textContent = activity.category.name;
+                        categoryTag.className = `text-base text-gray-500 dark:text-gray-400`;
+                    }
+
+                    // Update favorite tag
+                    const favoriteTag = document.getElementById('view-activity-favorite');
+                    if (favoriteTag) {
+                        favoriteTag.textContent = activity.favorite ? 'Yes' : 'No';
+                    }
+
+                    // Update description
+                    const descriptionElement = document.getElementById('view-activity-description');
+                    if (descriptionElement) {
+                        descriptionElement.textContent = activity.description || 'No description provided';
+                    }
+
+                    // Hide all category-specific fields first
+                    ['consume', 'exercise', 'sleep', 'mood'].forEach(category => {
+                        const fields = document.getElementById(`view-activity-${category}-fields`);
+                        if (fields) {
+                            fields.classList.add('hidden');
+                        }
+                    });
+
+                    // Handle category-specific fields
+                    if (activity.category && activity.category.slug === 'consume') {
+                        const consumeFields = document.getElementById('view-activity-consume-fields');
+                        if (consumeFields) {
+                            consumeFields.classList.remove('hidden');
+                            
+                            // Handle ingredients
+                            const ingredientsContainer = document.getElementById('view-activity-ingredients');
+                            if (ingredientsContainer) {
+                                ingredientsContainer.innerHTML = '';
+                                const consumption = activity.consumptions?.[0];
+                                
+                                if (consumption?.ingredients && consumption.ingredients.length > 0) {
+                                    consumption.ingredients.forEach(ingredient => {
+                                        if (ingredient.trim()) {
+                                            const span = document.createElement('span');
+                                            span.className = 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs font-medium px-2.5 py-0.5 rounded-full';
+                                            span.textContent = ingredient.trim();
+                                            ingredientsContainer.appendChild(span);
+                                        }
+                                    });
+                                } else {
+                                    ingredientsContainer.innerHTML = '<p class="text-sm text-gray-500 dark:text-gray-400">No ingredients listed</p>';
+                                }
+                            }
+
+                            // Handle consumed at date/time
+                            const consumedAtElement = document.getElementById('view-activity-consumed-at');
+                            if (consumedAtElement && activity.consumptions?.[0]?.consumed_at) {
+                                const consumedAt = new Date(activity.consumptions[0].consumed_at);
+                                consumedAtElement.textContent = 
+                                    consumedAt.toLocaleDateString() + ' at ' + 
+                                    consumedAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                            }
                         }
                     }
-                }, 100);
+
+                    // Show the modal using Flowbite's data attributes
+                    const viewModal = document.getElementById('viewActivityModal');
+                    if (viewModal) {
+                        const modal = new window.Flowbite.Modal(viewModal);
+                        modal.show();
+                    }
+
+                } catch (error) {
+                    console.error('Error in view button click handler:', error);
+                    showError('Failed to load activity details. Please try again.');
+                }
             });
         });
+
+        // Helper function to show errors
+        function showError(message) {
+            const errorAlert = document.createElement('div');
+            errorAlert.className = 'p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400';
+            errorAlert.textContent = message;
+            document.querySelector('.container').insertAdjacentElement('afterbegin', errorAlert);
+            setTimeout(() => errorAlert.remove(), 5000);
+        }
     });
 </script>
-
-<!-- Load activity modal script last -->
-<script src="{% static 'js/activity-modal.js' %}"></script>
 {% endblock %} 
