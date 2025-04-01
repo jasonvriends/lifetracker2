@@ -227,35 +227,54 @@
             // Flowbite is not loaded
         }
 
-        // Simple test function for filtering
+        // Simple function for filtering
         function filterActivities() {
+            // Get filter values
             const categoryFilter = document.getElementById('category-filter');
-            if (!categoryFilter) {
-                return;
-            }
+            const statusFilter = document.getElementById('favorite-filter');
             
-            const selectedCategory = categoryFilter.value;
+            if (!categoryFilter && !statusFilter) return;
             
+            const selectedCategory = categoryFilter ? categoryFilter.value : '';
+            const selectedStatus = statusFilter ? statusFilter.value : '';
+            
+            // Apply filters to each card
             const activityCards = document.querySelectorAll('.activity-card');
             
             activityCards.forEach(card => {
+                // Check category match
                 const cardCategory = card.getAttribute('data-category');
-                const shouldShow = !selectedCategory || selectedCategory === '' || cardCategory === selectedCategory;
-                card.style.display = shouldShow ? '' : 'none';
+                const categoryMatch = !selectedCategory || selectedCategory === '' || cardCategory === selectedCategory;
+                
+                // Check status match
+                let statusMatch = true;
+                if (selectedStatus === 'favorite') {
+                    // Show only cards with favorite tag
+                    statusMatch = card.querySelector('.favorite-tag') !== null;
+                } else if (selectedStatus === 'recent') {
+                    // Show only recent activities (added in the last 7 days)
+                    const addedText = card.querySelector('.text-sm.text-gray-400')?.textContent || '';
+                    const addedDate = new Date(addedText.replace('Added: ', ''));
+                    const oneWeekAgo = new Date();
+                    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+                    statusMatch = addedDate >= oneWeekAgo;
+                }
+                
+                // Show card only if it matches both filters
+                card.style.display = categoryMatch && statusMatch ? '' : 'none';
             });
         }
 
         // Add event listeners to filters
         const categoryFilter = document.getElementById('category-filter');
         if (categoryFilter) {
-            // Add click handler to test if events work at all
-            categoryFilter.addEventListener('click', function() {
-                // Category filter clicked
-            });
-            
-            categoryFilter.addEventListener('change', function() {
-                filterActivities();
-            });
+            categoryFilter.addEventListener('change', filterActivities);
+        }
+        
+        // Add event listener to status filter
+        const statusFilter = document.getElementById('favorite-filter');
+        if (statusFilter) {
+            statusFilter.addEventListener('change', filterActivities);
         }
 
         // Run initial filter
