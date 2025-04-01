@@ -1,0 +1,113 @@
+/* Custom styles for Lifetracker */
+
+/* Hero section enhancements */
+.hero-shadow {
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Animation for call-to-action buttons */
+.cta-button:hover {
+    transform: translateY(-2px);
+    transition: transform 0.3s ease;
+}
+
+/* Custom transitions */
+.smooth-transition {
+    transition: all 0.3s ease-in-out;
+}
+
+/* Custom card hover effects */
+.feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+/* Custom animation for icons */
+.icon-pulse:hover {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Theme toggle animation */
+#theme-toggle {
+    transition: transform 0.3s ease;
+}
+
+#theme-toggle:hover {
+    transform: rotate(15deg);
+}
+
+/* User avatar hover effect */
+#user-menu-button {
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+}
+
+#user-menu-button:hover {
+    transform: scale(1.05);
+    border: 2px solid #3b82f6;
+}
+
+/* Ensure proper sticky footer */
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+footer {
+    flex-shrink: 0;
+}
+
+/* Active navigation item styles */
+.active-nav-item {
+    position: relative;
+}
+
+.active-nav-item::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #3b82f6; /* blue-600 */
+    border-radius: 2px;
+}
+
+/* Enhanced focus styles for navigation items */
+.nav-link:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px #3b82f6;
+    border-radius: 0.25rem;
+}
+
+/* Desktop navigation bottom border transition */
+@media (min-width: 1024px) {
+    .lg\:border-blue-700 {
+        border-bottom-width: 2px;
+        transition: border-color 0.2s ease;
+    }
+} 

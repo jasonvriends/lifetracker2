@@ -6,7 +6,7 @@ from django.conf import settings
 
 User = get_user_model()
 
-class Category(models.Model):
+class ActivityCategory(models.Model):
     """Model for activity categories"""
     name = models.CharField(max_length=100)
     slug = models.SlugField(max_length=100, unique=True)
@@ -15,7 +15,7 @@ class Category(models.Model):
     color = models.CharField(max_length=50, default="blue")
     
     class Meta:
-        verbose_name_plural = "Categories"
+        verbose_name_plural = "Activity Categories"
         ordering = ["name"]
     
     def __str__(self):
@@ -24,8 +24,8 @@ class Category(models.Model):
 class Activity(models.Model):
     """Base model for all activities"""
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="activities")
-    name = models.CharField(max_length=255)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name="activities")
+    name = models.CharField(max_length=200)
+    category = models.ForeignKey(ActivityCategory, on_delete=models.CASCADE, related_name="activities")
     description = models.TextField(blank=True, null=True)
     favorite = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -42,7 +42,7 @@ class Activity(models.Model):
         return reverse("activities:activity_detail", kwargs={"pk": self.pk})
 
 class Consumption(models.Model):
-    """Model for consumed items (food, drinks, etc.)"""
+    """Model for consumption activities"""
     activity = models.ForeignKey(Activity, on_delete=models.CASCADE, related_name="consumptions")
     description = models.TextField(blank=True, null=True)
     ingredients = models.TextField(blank=True, null=True, help_text="Enter ingredients, one per line")
@@ -50,6 +50,6 @@ class Consumption(models.Model):
     
     class Meta:
         ordering = ["-consumed_at"]
-        
+    
     def __str__(self):
         return f"{self.activity.name} consumed at {self.consumed_at}" 
