@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 {% load tz %}
+{% load activity_tags %}
 {# Temporarily commenting out custom filters #}
 {# {% load custom_filters %} #}
 
@@ -266,7 +267,11 @@
                                 {% with consumption=activity.consumptions.first %}
                                     {% if consumption %}
                                         <span class="text-xs text-gray-500 dark:text-gray-400">
-                                            {{ consumption.consumed_at|localtime|date:"F j, Y" }} at {{ consumption.consumed_at|localtime|time:"g:i A" }}
+                                            {% timezone user_timezone %}
+                                            {% with local_time=consumption.consumed_at %}
+                                            {{ local_time|date:"F j, Y" }} at {{ local_time|time:"g:i A" }}
+                                            {% endwith %}
+                                            {% endtimezone %}
                                         </span>
                                     {% endif %}
                                 {% endwith %}
@@ -521,7 +526,7 @@
             const currentDate = urlParams.get('date');
 
             try {
-                // Initialize flatpickr
+                // Initialize flatpickr with user's timezone info
                 const picker = flatpickr(datepickerEl, {
                     dateFormat: 'Y-m-d',
                     defaultDate: currentDate || null,
@@ -529,6 +534,7 @@
                     allowInput: true,
                     clickOpens: true,
                     static: true,
+                    // Don't adjust dates - we want to use dates as-is with server handling timezone conversion
                     onChange: function(selectedDates, dateStr) {
                         if (dateStr) {
                             window.location.href = `/activities/?date=${dateStr}`;
@@ -634,7 +640,6 @@
                 const activityId = formData.get('activity_id');
 
                 try {
-                    console.log('Submitting form data:', Object.fromEntries(formData));
                     const response = await fetch(`/activities/${activityId}/update/`, {
                         method: 'POST',
                         body: formData,

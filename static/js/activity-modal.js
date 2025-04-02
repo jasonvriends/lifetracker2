@@ -34,26 +34,36 @@ document.addEventListener('DOMContentLoaded', function() {
         const formattedTime = `${hours}:${minutes}`;
         
         // Set values
-        consumeDateInput.value = formattedDate;
         consumeTimeInput.value = formattedTime;
         
         // Set attribute for datepicker
-        consumeDateInput.setAttribute('data-date', formattedDate);
+        if (typeof flatpickr === 'undefined') {
+            // Fallback if flatpickr is not available
+            consumeDateInput.value = formattedDate;
+        }
     }
     
-    // Initialize datepicker if using Flowbite
-    if (consumeDateInput && typeof Datepicker !== 'undefined') {
+    // Initialize Flatpickr datepicker
+    if (consumeDateInput && typeof flatpickr !== 'undefined') {
         try {
-            const datepicker = new Datepicker(consumeDateInput, {
-                format: 'yyyy-mm-dd',
-                autohide: true,
-                todayBtn: true,
-                clearBtn: false,
-                todayHighlight: true
+            const datepicker = flatpickr(consumeDateInput, {
+                dateFormat: 'Y-m-d',
+                defaultDate: new Date(),
+                enableTime: false,
+                allowInput: true,
+                clickOpens: true,
+                static: true,
+                onChange: function(selectedDates, dateStr) {
+                    // Custom behavior can be added here if needed
+                }
             });
         } catch (e) {
-            // Error initializing datepicker
+            // Fallback to basic input if Flatpickr fails
+            setCurrentDateTime();
         }
+    } else if (consumeDateInput) {
+        // Fallback to basic input if Flatpickr is not available
+        setCurrentDateTime();
     }
     
     // Direct manipulation function - simplified to ensure reliability
@@ -157,6 +167,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         observer.observe(activityModal, { attributes: true });
+        
+        // Also handle direct clicks on modal toggle buttons
+        document.addEventListener('click', function(event) {
+            if (event.target.hasAttribute('data-modal-toggle') && 
+                event.target.getAttribute('data-modal-toggle') === 'activityModal') {
+                
+                // Slight delay to ensure modal is open
+                setTimeout(() => {
+                    if (categorySelect && categorySelect.value) {
+                        updateFormForCategory(categorySelect.value);
+                    } else if (categorySelect) {
+                        // If no category is selected, default to 'consume'
+                        categorySelect.value = 'consume';
+                        updateFormForCategory('consume');
+                    }
+                }, 100);
+            }
+        });
     }
     
     // Event handler for favorite selection
@@ -268,7 +296,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 activityData.ingredients = ingredients ? ingredients.split('\n').filter(i => i.trim()) : [];
                 activityData.date = consumeDate;
                 activityData.time = consumeTime;
-                activityData.timezone_offset = timezoneOffset;
+                activityData.timezone_offset = -timezoneOffset; // Negate the offset to match server expectation
             }
             
             // Get CSRF token

@@ -22,4 +22,8 @@ class TimezoneMiddleware:
             # For unauthenticated users, use UTC
             timezone.activate(zoneinfo.ZoneInfo('UTC'))
             
-        return self.get_response(request) 
+        # Get the response
+        response = self.get_response(request)
+        
+        # Return the response
+        return response 

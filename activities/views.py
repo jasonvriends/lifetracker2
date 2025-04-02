@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 import json
 from .models import Activity, ActivityCategory, Consumption
 from django.db import models
+from zoneinfo import ZoneInfo
 
 @login_required
 def activities_view(request):
@@ -23,12 +24,27 @@ def activities_view(request):
     if date_str:
         try:
             # Convert the date string to a datetime object in the user's timezone
-            date = datetime.strptime(date_str, '%Y-%m-%d')
-            date = timezone.make_aware(date)
+            naive_date = datetime.strptime(date_str, '%Y-%m-%d')
             
-            # Get the start and end of the day in the user's timezone
-            start_date = date.replace(hour=0, minute=0, second=0, microsecond=0)
-            end_date = date.replace(hour=23, minute=59, second=59, microsecond=999999)
+            # Get the user's timezone
+            user_timezone = request.user.timezone
+            
+            # Create timezone-aware datetime objects for start and end of the day
+            # Make sure to use the user's local timezone for the day boundaries
+            start_date = timezone.make_aware(
+                datetime.combine(naive_date.date(), datetime.min.time()),
+                ZoneInfo(user_timezone)
+            )
+            
+            end_date = timezone.make_aware(
+                datetime.combine(naive_date.date(), datetime.max.time()),
+                ZoneInfo(user_timezone)
+            )
+            
+            print(f"Filtering activities for date: {date_str}")
+            print(f"User timezone: {user_timezone}")
+            print(f"Start date: {start_date} (UTC: {start_date.astimezone(ZoneInfo('UTC'))})")
+            print(f"End date: {end_date} (UTC: {end_date.astimezone(ZoneInfo('UTC'))})")
             
             # Filter activities based on either created_at or consumed_at
             activities = Activity.objects.filter(
@@ -47,9 +63,23 @@ def activities_view(request):
             # If date parsing fails, return all activities
             pass
     
+    # Add raw datetime values for debugging
+    debug_info = {}
+    for activity in activities:
+        if activity.category.slug == 'consume':
+            consumption = activity.consumptions.first()
+            if consumption:
+                debug_info[activity.id] = {
+                    'raw_datetime': consumption.consumed_at.isoformat(),
+                    'in_utc': consumption.consumed_at.astimezone(ZoneInfo('UTC')).isoformat(),
+                    'in_toronto': consumption.consumed_at.astimezone(ZoneInfo('America/Toronto')).isoformat(),
+                }
+    
     context = {
         'activities': activities,
         'categories': categories,
+        'user_timezone': request.user.timezone,
+        'debug_info': debug_info,
     }
     
     # If it's an AJAX request, return only the activities list
@@ -160,7 +190,6 @@ def create_activity(request):
             ingredients = data.get('ingredients', [])
             date_str = data.get('date')
             time_str = data.get('time')
-            timezone_offset = data.get('timezone_offset', 0)
             
             # Join ingredients as newline-separated string
             ingredients_str = '\n'.join(ingredients) if ingredients else ''
@@ -170,22 +199,40 @@ def create_activity(request):
                 try:
                     # Combine date and time strings
                     datetime_str = f"{date_str} {time_str}"
-                    local_dt = datetime.strptime(datetime_str, '%Y-%m-%d %H:%M')
                     
-                    # Adjust for timezone offset
-                    utc_dt = local_dt + timedelta(minutes=timezone_offset)
+                    # Parse the datetime as a naive datetime
+                    naive_dt = datetime.strptime(datetime_str, '%Y-%m-%d %H:%M')
+                    
+                    # Get the user's timezone
+                    user_timezone = request.user.timezone
+                    
+                    # Make it timezone-aware using the user's timezone
+                    # This correctly localizes the time
+                    aware_dt = timezone.make_aware(naive_dt, ZoneInfo(user_timezone))
+                    
+                    # Convert to UTC for storage in the database
+                    # This ensures consistent timezone storage
+                    utc_dt = aware_dt.astimezone(ZoneInfo('UTC'))
+                    
+                    print(f"Input date/time: {date_str} {time_str}")
+                    print(f"User timezone: {user_timezone}")
+                    print(f"Naive datetime: {naive_dt}")
+                    print(f"Aware datetime (user TZ): {aware_dt}")
+                    print(f"UTC datetime: {utc_dt}")
+                    
                 except ValueError:
                     return JsonResponse({'message': 'Invalid date or time format'}, status=400)
             else:
-                # Default to current time
-                utc_dt = timezone.now()
+                # Default to current time in user's timezone
+                aware_dt = timezone.now()
+                utc_dt = aware_dt.astimezone(ZoneInfo('UTC'))
             
-            # Create consumption record
+            # Create consumption record with the timezone-aware datetime
             Consumption.objects.create(
                 activity=activity,
                 description=description,
                 ingredients=ingredients_str,
-                consumed_at=utc_dt
+                consumed_at=utc_dt  # Store as UTC
             )
         
         return JsonResponse({'message': 'Activity created successfully'})
@@ -298,8 +345,27 @@ def update_activity(request, pk):
             consumed_time = request.POST.get('consumed_at_time')
             if consumed_date and consumed_time:
                 try:
-                    consumed_at = datetime.strptime(f"{consumed_date} {consumed_time}", "%Y-%m-%d %H:%M")
-                    consumption.consumed_at = timezone.make_aware(consumed_at)
+                    # Parse the datetime as a naive datetime
+                    naive_dt = datetime.strptime(f"{consumed_date} {consumed_time}", "%Y-%m-%d %H:%M")
+                    
+                    # Get the user's timezone
+                    user_timezone = request.user.timezone
+                    
+                    # Make it timezone-aware using the user's timezone
+                    aware_dt = timezone.make_aware(naive_dt, ZoneInfo(user_timezone))
+                    
+                    # Convert to UTC for storage in the database
+                    utc_dt = aware_dt.astimezone(ZoneInfo('UTC'))
+                    
+                    # Store the UTC time in the database
+                    consumption.consumed_at = utc_dt
+                    
+                    print(f"Update - Input date/time: {consumed_date} {consumed_time}")
+                    print(f"Update - User timezone: {user_timezone}")
+                    print(f"Update - Naive datetime: {naive_dt}")
+                    print(f"Update - Aware datetime (user TZ): {aware_dt}")
+                    print(f"Update - UTC datetime: {utc_dt}")
+                    
                 except ValueError as e:
                     return JsonResponse({
                         'success': False,

@@ -36,7 +36,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const minutes = String(now.getMinutes()).padStart(2, '0');
         const formattedTime = `${hours}:${minutes}`;
         
-        console.log('Setting date/time to:', formattedDate, formattedTime);
+        console.log('CURRENT LOCAL DATE/TIME:');
+        console.log('Browser DateTime:', now.toString());
+        console.log('Browser Date Object:', now);
+        console.log('Local Date (YYYY-MM-DD):', formattedDate);
+        console.log('Local Time (HH:MM):', formattedTime);
         
         // Set values
         consumeDateInput.value = formattedDate;
@@ -248,54 +252,57 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
             
-            // Create activity data object
-            const activityData = {
+            // Collect form data
+            const formData = {
                 category: category,
                 name: activityName,
-                favorite: saveFavoriteToggle.checked
+                favorite: saveFavoriteToggle.checked,
             };
             
-            // Add category-specific data
-            if (category === 'consume') {
-                // Get all consume-specific fields
-                const description = document.getElementById('description').value;
-                const ingredients = document.getElementById('ingredients').value;
-                const consumeDate = document.getElementById('consume-date').value;
-                const consumeTime = document.getElementById('consume-time').value;
-                
-                // Validate required consume fields
-                if (!consumeDate || !consumeTime) {
-                    alert('Please fill in the date and time fields.');
-                    // Reset submit button
-                    submitBtn.disabled = false;
-                    submitText.textContent = 'Save Activity';
-                    loadingSpinner.classList.add('hidden');
-                    return;
-                }
-                
-                // Get timezone offset in minutes
-                const timezoneOffset = new Date().getTimezoneOffset();
-                
-                // Add consume-specific data
-                activityData.description = description;
-                activityData.ingredients = ingredients ? ingredients.split('\n').filter(i => i.trim()) : [];
-                activityData.date = consumeDate;
-                activityData.time = consumeTime;
-                activityData.timezone_offset = timezoneOffset;
+            // Add description if present
+            const descriptionInput = document.getElementById('description');
+            if (descriptionInput && descriptionInput.value) {
+                formData.description = descriptionInput.value;
             }
             
-            // Get CSRF token
-            const csrftoken = getCookie('csrftoken');
+            // Add category-specific fields
+            if (category === 'consume') {
+                formData.ingredients = [];
+                
+                // Manually added ingredients
+                const ingredientsInput = document.getElementById('ingredients');
+                if (ingredientsInput && ingredientsInput.value) {
+                    formData.ingredients = ingredientsInput.value.split('\n').filter(line => line.trim() !== '');
+                }
+                
+                // Add date and time
+                if (consumeDateInput && consumeDateInput.value) {
+                    formData.date = consumeDateInput.value;
+                }
+                if (consumeTimeInput && consumeTimeInput.value) {
+                    formData.time = consumeTimeInput.value;
+                }
+                
+                // Add timezone offset in minutes
+                const timezoneOffset = new Date().getTimezoneOffset();
+                formData.timezone_offset = -timezoneOffset;  // Convert to match server expectation
+            }
             
-            // Send the data to the server
+            console.log('FORM SUBMISSION:');
+            console.log('Form Data:', JSON.stringify(formData));
+            console.log('Local Date:', formData.date);
+            console.log('Local Time:', formData.time);
+            console.log('Timezone Offset:', formData.timezone_offset);
+            console.log('Current Local Date/Time:', new Date().toString());
+            
+            // Send the data
             fetch('/activities/create/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken,
-                    'X-Requested-With': 'XMLHttpRequest'
+                    'X-CSRFToken': getCookie('csrftoken')
                 },
-                body: JSON.stringify(activityData)
+                body: JSON.stringify(formData)
             })
             .then(response => {
                 if (!response.ok) {
