@@ -66,8 +66,8 @@
                                     <label for="ingredients" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Ingredients (one per line)</label>
                                     <textarea id="ingredients" name="ingredients" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"></textarea>
                                 </div>
-                                <div class="grid gap-8 mb-6 md:grid-cols-2">
-                                    <div>
+                                <div class="grid gap-8 mb-6 lg:grid-cols-2">
+                                    <div class="w-full">
                                         <label for="consume-date" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date consumed</label>
                                         <div class="relative">
                                             <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none z-10">
@@ -78,11 +78,12 @@
                                             <input type="text" 
                                                 id="consume-date" 
                                                 name="consumed_at_date" 
-                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full text-center ps-10 p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" 
-                                                placeholder="Select date">
+                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" 
+                                                placeholder="Select date"
+                                                style="padding-left: 35px;">
                                         </div>
                                     </div>
-                                    <div>
+                                    <div class="w-full">
                                         <label for="consume-time" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Time consumed</label>
                                         <div class="relative">
                                             <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none z-10">
@@ -90,7 +91,11 @@
                                                     <path d="M10 0C4.477 0 0 4.477 0 10c0 5.523 4.477 10 10 10s10-4.477 10-10C20 4.477 15.523 0 10 0zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8zm.5-13H9v5.793l3.146 3.147.708-.708L10 10.379V5z"/>
                                                 </svg>
                                             </div>
-                                            <input type="time" id="consume-time" name="consumed_at_time" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full text-center ps-10 p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
+                                            <input type="time" 
+                                                id="consume-time" 
+                                                name="consumed_at_time" 
+                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                                                style="padding-left: 35px;">
                                         </div>
                                     </div>
                                 </div>
@@ -137,6 +142,15 @@
                     clickOpens: true,
                     static: true
                 });
+                
+                // Add custom style to ensure text doesn't overlap with icon
+                const styleElement = document.createElement('style');
+                styleElement.textContent = `
+                    .flatpickr-input {
+                        padding-left: 35px !important;
+                    }
+                `;
+                document.head.appendChild(styleElement);
             } catch (e) {
                 // Fallback if flatpickr initialization fails
             }
