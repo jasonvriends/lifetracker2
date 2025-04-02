@@ -712,6 +712,58 @@
             }
         }
 
+        // Handle filters
+        const categoryFilter = document.getElementById('category-filter');
+        const favoriteFilter = document.getElementById('favorite-filter');
+        const searchInput = document.getElementById('activity-search');
+        const activityCards = document.querySelectorAll('.activity-card');
+
+        // Function to apply all filters
+        function applyFilters() {
+            const selectedCategory = categoryFilter.value;
+            const selectedFavorite = favoriteFilter.value;
+            const searchTerm = searchInput.value.toLowerCase();
+            
+            activityCards.forEach(card => {
+                const category = card.dataset.category;
+                const hasFavoriteTag = card.querySelector('.favorite-tag') !== null;
+                const name = card.querySelector('.activity-name').textContent.toLowerCase();
+                const description = card.querySelector('p')?.textContent.toLowerCase() || '';
+                
+                // Category filter
+                const categoryMatch = !selectedCategory || category === selectedCategory;
+                
+                // Favorite filter
+                const favoriteMatch = !selectedFavorite || 
+                    (selectedFavorite === 'favorite' && hasFavoriteTag);
+                
+                // Search filter
+                const searchMatch = !searchTerm || 
+                    name.includes(searchTerm) || 
+                    description.includes(searchTerm);
+                
+                // Show/hide based on all filters
+                if (categoryMatch && favoriteMatch && searchMatch) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        // Add event listeners to filters
+        if (categoryFilter) {
+            categoryFilter.addEventListener('change', applyFilters);
+        }
+        
+        if (favoriteFilter) {
+            favoriteFilter.addEventListener('change', applyFilters);
+        }
+        
+        if (searchInput) {
+            searchInput.addEventListener('input', applyFilters);
+        }
+
         // Handle pagination
         const paginationLinks = document.querySelectorAll('.pagination-link');
         if (paginationLinks.length > 0) {
