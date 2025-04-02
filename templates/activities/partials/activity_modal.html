@@ -105,6 +105,63 @@
                                 </div>
                             </div>
                         </form>
+
+                        <!-- Exercise Activity Form -->
+                        <form id="exercise-activity-form" class="hidden">
+                            {% csrf_token %}
+                            <input type="hidden" name="category" value="exercise">
+                            <div class="space-y-4">
+                                <div>
+                                    <label for="exercise-name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Name</label>
+                                    <input type="text" id="exercise-name" name="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" required>
+                                </div>
+                                <div>
+                                    <label for="exercise-description" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Description</label>
+                                    <textarea id="exercise-description" name="description" rows="3" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"></textarea>
+                                </div>
+                                <div>
+                                    <label for="exercise-reps" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Repetitions</label>
+                                    <input type="number" id="exercise-reps" name="reps" min="1" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
+                                </div>
+                                <div class="grid gap-8 mb-6 lg:grid-cols-2">
+                                    <div class="w-full">
+                                        <label for="exercise-date" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date performed</label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none z-10">
+                                                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
+                                                </svg>
+                                            </div>
+                                            <input type="text" 
+                                                id="exercise-date" 
+                                                name="performed_at_date" 
+                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" 
+                                                placeholder="Select date"
+                                                style="padding-left: 35px;">
+                                        </div>
+                                    </div>
+                                    <div class="w-full">
+                                        <label for="exercise-time" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Time performed</label>
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none z-10">
+                                                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M10 0C4.477 0 0 4.477 0 10c0 5.523 4.477 10 10 10s10-4.477 10-10C20 4.477 15.523 0 10 0zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8zm.5-13H9v5.793l3.146 3.147.708-.708L10 10.379V5z"/>
+                                                </svg>
+                                            </div>
+                                            <input type="time" 
+                                                id="exercise-time" 
+                                                name="performed_at_time" 
+                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+                                                style="padding-left: 35px;">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex items-center">
+                                    <input id="exercise-favorite" type="checkbox" name="favorite" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                                    <label for="exercise-favorite" class="ml-2 text-sm font-medium text-gray-900 dark:text-white">Mark as favorite</label>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -126,12 +183,15 @@
         const categorySelect = document.getElementById('category-select');
         const basicActivityForm = document.getElementById('basic-activity-form');
         const consumeActivityForm = document.getElementById('consume-activity-form');
+        const exerciseActivityForm = document.getElementById('exercise-activity-form');
         const activityCategoryInput = document.getElementById('activity-category');
         const submitButton = document.getElementById('submit-activity');
         const consumeDateInput = document.getElementById('consume-date');
         const consumeTimeInput = document.getElementById('consume-time');
+        const exerciseDateInput = document.getElementById('exercise-date');
+        const exerciseTimeInput = document.getElementById('exercise-time');
 
-        // Initialize flatpickr if available
+        // Initialize flatpickr for consume date if available
         if (consumeDateInput && typeof flatpickr !== 'undefined') {
             try {
                 const datepicker = flatpickr(consumeDateInput, {
@@ -151,6 +211,22 @@
                     }
                 `;
                 document.head.appendChild(styleElement);
+            } catch (e) {
+                // Fallback if flatpickr initialization fails
+            }
+        }
+
+        // Initialize flatpickr for exercise date if available
+        if (exerciseDateInput && typeof flatpickr !== 'undefined') {
+            try {
+                const datepicker = flatpickr(exerciseDateInput, {
+                    dateFormat: 'F j, Y', // Long format: April 2, 2025
+                    defaultDate: new Date(),
+                    enableTime: false,
+                    allowInput: true,
+                    clickOpens: true,
+                    static: true
+                });
             } catch (e) {
                 // Fallback if flatpickr initialization fails
             }
@@ -194,6 +270,7 @@
             // Hide all forms first
             basicActivityForm.style.display = 'none';
             consumeActivityForm.style.display = 'none';
+            exerciseActivityForm.style.display = 'none';
 
             // Show form for selected category
             if (selectedCategory === 'consume') {
@@ -212,6 +289,22 @@
                     const day = String(now.getDate()).padStart(2, '0');
                     consumeDateInput.value = `${year}-${month}-${day}`;
                 }
+            } else if (selectedCategory === 'exercise') {
+                exerciseActivityForm.style.display = 'block';
+                // Set default time to now
+                const now = new Date();
+                exerciseTimeInput.value = now.toTimeString().slice(0, 5);
+                
+                // Update flatpickr with today's date if it exists
+                if (exerciseDateInput._flatpickr) {
+                    exerciseDateInput._flatpickr.setDate(now);
+                } else {
+                    // Format date in ISO format for non-flatpickr fallback
+                    const year = now.getFullYear();
+                    const month = String(now.getMonth() + 1).padStart(2, '0');
+                    const day = String(now.getDate()).padStart(2, '0');
+                    exerciseDateInput.value = `${year}-${month}-${day}`;
+                }
             } else if (selectedCategory) {
                 basicActivityForm.style.display = 'block';
             }
@@ -226,10 +319,11 @@
             for (let [key, value] of formData.entries()) {
                 if (key === 'ingredients') {
                     data[key] = value.split('\n').filter(i => i.trim());
-                } else if (key === 'consumed_at_date' && formData.get('consumed_at_time')) {
+                } else if ((key === 'consumed_at_date' && formData.get('consumed_at_time')) || 
+                           (key === 'performed_at_date' && formData.get('performed_at_time'))) {
                     // Parse the long format date (e.g., "April 2, 2025") into YYYY-MM-DD
                     const dateInput = value;
-                    const timeInput = formData.get('consumed_at_time');
+                    const timeInput = key === 'consumed_at_date' ? formData.get('consumed_at_time') : formData.get('performed_at_time');
                     
                     // If it's already in YYYY-MM-DD format, use it directly
                     if (/^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
@@ -253,7 +347,10 @@
                     data[key] = value === 'on';
                 } else if (key === 'consumption_description') {
                     data['description'] = value;
-                } else if (key !== 'consumed_at_time' && key !== 'csrfmiddlewaretoken') {
+                } else if (key === 'reps') {
+                    // Convert reps to number
+                    data[key] = parseInt(value, 10) || 0;
+                } else if (key !== 'consumed_at_time' && key !== 'performed_at_time' && key !== 'csrfmiddlewaretoken') {
                     data[key] = value;
                 }
             }
@@ -270,7 +367,15 @@
                 return;
             }
 
-            const form = selectedCategory === 'consume' ? consumeActivityForm : basicActivityForm;
+            let form;
+            if (selectedCategory === 'consume') {
+                form = consumeActivityForm;
+            } else if (selectedCategory === 'exercise') {
+                form = exerciseActivityForm;
+            } else {
+                form = basicActivityForm;
+            }
+            
             const formData = getFormData(form);
 
             try {
