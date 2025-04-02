@@ -7,6 +7,7 @@ from django.views.decorators.http import require_POST
 from datetime import datetime, timedelta
 import json
 from .models import Activity, ActivityCategory, Consumption
+from django.db import models
 
 @login_required
 def activities_view(request):
@@ -17,10 +18,44 @@ def activities_view(request):
     # Get all activities for the current user
     activities = Activity.objects.filter(user=request.user)
     
+    # Handle date filtering
+    date_str = request.GET.get('date')
+    if date_str:
+        try:
+            # Convert the date string to a datetime object in the user's timezone
+            date = datetime.strptime(date_str, '%Y-%m-%d')
+            date = timezone.make_aware(date)
+            
+            # Get the start and end of the day in the user's timezone
+            start_date = date.replace(hour=0, minute=0, second=0, microsecond=0)
+            end_date = date.replace(hour=23, minute=59, second=59, microsecond=999999)
+            
+            # Filter activities based on either created_at or consumed_at
+            activities = Activity.objects.filter(
+                models.Q(
+                    user=request.user,
+                    created_at__range=(start_date, end_date)
+                ) |
+                models.Q(
+                    user=request.user,
+                    category__slug='consume',
+                    consumptions__consumed_at__range=(start_date, end_date)
+                )
+            ).distinct().order_by('-created_at')
+            
+        except ValueError:
+            # If date parsing fails, return all activities
+            pass
+    
     context = {
         'activities': activities,
         'categories': categories,
     }
+    
+    # If it's an AJAX request, return only the activities list
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return render(request, 'activities/partials/activities_list.html', context)
+    
     return render(request, 'activities/activities.html', context)
 
 @login_required
