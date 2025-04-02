@@ -18,6 +18,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import RedirectView
 from activities.views import activities_view
+from core.views import privacy_policy, terms_conditions
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,5 +26,7 @@ urlpatterns = [
     path('dashboard/', include('dashboard.urls')),
     path('activities/', include('activities.urls')),
     path('activities-view/', activities_view, name='activities'),
+    path('privacy-policy/', privacy_policy, name='privacy_policy'),
+    path('terms-conditions/', terms_conditions, name='terms_conditions'),
     path('', RedirectView.as_view(url='/dashboard/', permanent=True)),
 ]

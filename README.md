@@ -36,7 +36,7 @@ A Django application for tracking various aspects of your life using best practi
 
 3. Install the dependencies:
    ```
-   pip install django
+   pip install -r requirements.txt
    ```
 
 4. Run migrations:
