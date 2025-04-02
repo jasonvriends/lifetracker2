@@ -347,6 +347,82 @@
             {% endfor %}
         </div>
         
+        <!-- Pagination -->
+        {% if activities.paginator.num_pages > 1 %}
+        <div class="flex flex-col items-center mt-8">
+            <!-- Help text -->
+            <span class="text-sm text-gray-700 dark:text-gray-400">
+                Showing <span class="font-semibold text-gray-900 dark:text-white">{{ activities.start_index }}</span> to <span class="font-semibold text-gray-900 dark:text-white">{{ activities.end_index }}</span> of <span class="font-semibold text-gray-900 dark:text-white">{{ activities.paginator.count }}</span> Activities
+            </span>
+            
+            <!-- Navigation -->
+            <div class="inline-flex mt-2 xs:mt-0">
+                <nav aria-label="Page navigation">
+                    <ul class="flex items-center -space-x-px h-10 text-base">
+                        <!-- Previous button -->
+                        {% if activities.has_previous %}
+                            <li>
+                                <a href="#" class="pagination-link flex items-center justify-center px-4 h-10 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white" data-page="{{ activities.previous_page_number }}">
+                                    <span class="sr-only">Previous</span>
+                                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 1 1 5l4 4"/>
+                                    </svg>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li>
+                                <span class="flex items-center justify-center px-4 h-10 ml-0 leading-tight text-gray-300 bg-white border border-gray-300 rounded-l-lg dark:bg-gray-800 dark:border-gray-700 dark:text-gray-600 cursor-not-allowed">
+                                    <span class="sr-only">Previous</span>
+                                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 1 1 5l4 4"/>
+                                    </svg>
+                                </span>
+                            </li>
+                        {% endif %}
+                        
+                        <!-- Page numbers -->
+                        {% for page_num in activities.paginator.page_range %}
+                            {% if activities.number == page_num %}
+                                <li>
+                                    <span aria-current="page" class="z-10 flex items-center justify-center px-4 h-10 leading-tight text-blue-600 border border-blue-300 bg-blue-50 hover:bg-blue-100 hover:text-blue-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white">
+                                        {{ page_num }}
+                                    </span>
+                                </li>
+                            {% elif page_num > activities.number|add:"-3" and page_num < activities.number|add:"3" %}
+                                <li>
+                                    <a href="#" class="pagination-link flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white" data-page="{{ page_num }}">
+                                        {{ page_num }}
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        <!-- Next button -->
+                        {% if activities.has_next %}
+                            <li>
+                                <a href="#" class="pagination-link flex items-center justify-center px-4 h-10 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white" data-page="{{ activities.next_page_number }}">
+                                    <span class="sr-only">Next</span>
+                                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                                    </svg>
+                                </a>
+                            </li>
+                        {% else %}
+                            <li>
+                                <span class="flex items-center justify-center px-4 h-10 leading-tight text-gray-300 bg-white border border-gray-300 rounded-r-lg dark:bg-gray-800 dark:border-gray-700 dark:text-gray-600 cursor-not-allowed">
+                                    <span class="sr-only">Next</span>
+                                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 6 10">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 9 4-4-4-4"/>
+                                    </svg>
+                                </span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        {% endif %}
+        
         <!-- View Activity Modal -->
         <div id="viewActivityModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
             <div class="relative w-full max-w-2xl max-h-full">
@@ -524,12 +600,16 @@
         if (datepickerEl) {
             const urlParams = new URLSearchParams(window.location.search);
             const currentDate = urlParams.get('date');
+            
+            // Format today's date as YYYY-MM-DD
+            const today = new Date();
+            const formattedToday = today.toISOString().split('T')[0];
 
             try {
                 // Initialize flatpickr with user's timezone info
                 const picker = flatpickr(datepickerEl, {
                     dateFormat: 'Y-m-d',
-                    defaultDate: currentDate || null,
+                    defaultDate: currentDate || formattedToday,
                     enableTime: false,
                     allowInput: true,
                     clickOpens: true,
@@ -544,13 +624,36 @@
                     }
                 });
                 
-                // Set initial value if date is in URL
+                // Set initial value if date is in URL or default to today
                 if (currentDate) {
                     datepickerEl.value = currentDate;
+                } else {
+                    datepickerEl.value = formattedToday;
+                    // If no date in URL, redirect to today's date
+                    window.location.href = `/activities/?date=${formattedToday}`;
                 }
             } catch (error) {
                 console.error('Error initializing datepicker:', error);
             }
+        }
+
+        // Handle pagination
+        const paginationLinks = document.querySelectorAll('.pagination-link');
+        if (paginationLinks.length > 0) {
+            paginationLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const page = this.dataset.page;
+                    if (page) {
+                        // Get current URL params
+                        const urlParams = new URLSearchParams(window.location.search);
+                        // Update the page parameter
+                        urlParams.set('page', page);
+                        // Redirect to the new URL
+                        window.location.href = `${window.location.pathname}?${urlParams.toString()}`;
+                    }
+                });
+            });
         }
 
         // Initialize view buttons

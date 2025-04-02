@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_POST
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from datetime import datetime, timedelta
 import json
 from .models import Activity, ActivityCategory, Consumption
@@ -17,7 +18,7 @@ def activities_view(request):
     categories = ActivityCategory.objects.all()
     
     # Get all activities for the current user
-    activities = Activity.objects.filter(user=request.user)
+    activities_queryset = Activity.objects.filter(user=request.user)
     
     # Handle date filtering
     date_str = request.GET.get('date')
@@ -41,13 +42,8 @@ def activities_view(request):
                 ZoneInfo(user_timezone)
             )
             
-            print(f"Filtering activities for date: {date_str}")
-            print(f"User timezone: {user_timezone}")
-            print(f"Start date: {start_date} (UTC: {start_date.astimezone(ZoneInfo('UTC'))})")
-            print(f"End date: {end_date} (UTC: {end_date.astimezone(ZoneInfo('UTC'))})")
-            
             # Filter activities based on either created_at or consumed_at
-            activities = Activity.objects.filter(
+            activities_queryset = Activity.objects.filter(
                 models.Q(
                     user=request.user,
                     created_at__range=(start_date, end_date)
@@ -62,6 +58,19 @@ def activities_view(request):
         except ValueError:
             # If date parsing fails, return all activities
             pass
+    
+    # Implement pagination - 15 items per page
+    paginator = Paginator(activities_queryset, 15)
+    page = request.GET.get('page')
+    
+    try:
+        activities = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page
+        activities = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range, deliver last page
+        activities = paginator.page(paginator.num_pages)
     
     # Add raw datetime values for debugging
     debug_info = {}
