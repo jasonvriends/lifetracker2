@@ -139,6 +139,54 @@
     .dark .flatpickr-time .flatpickr-time-separator {
         color: #e5e7eb;
     }
+    
+    /* Hide native time picker icon */
+    input[type="time"]::-webkit-calendar-picker-indicator {
+        display: none;
+    }
+    
+    input[type="time"]::-webkit-inner-spin-button,
+    input[type="time"]::-webkit-clear-button {
+        -webkit-appearance: none;
+        display: none;
+    }
+    
+    /* Firefox */
+    input[type="time"] {
+        -moz-appearance: textfield;
+    }
+    
+    /* For MS Edge */
+    input[type="time"]::-ms-clear,
+    input[type="time"]::-ms-reveal {
+        display: none;
+    }
+    
+    /* Make sure date and time inputs in edit modal are equal width */
+    #editActivityModal .grid.md\:grid-cols-2 > div,
+    #activityModal .grid.md\:grid-cols-2 > div {
+        width: 50%;
+        max-width: 50%;
+        flex: 0 0 50%;
+    }
+    
+    /* Right align the time consumed field */
+    #editActivityModal .grid.md\:grid-cols-2 > div:last-child,
+    #activityModal .grid.md\:grid-cols-2 > div:last-child {
+        margin-left: auto;
+    }
+    
+    /* Time input styling */
+    #edit-consumed-at-time, 
+    #consume-time {
+        width: 100%;
+        box-sizing: border-box;
+    }
+    
+    /* Search box fix */
+    #activity-search {
+        padding-left: 2.5rem;
+    }
 </style>
 {% endblock %}
 
@@ -185,14 +233,14 @@
         <div class="flex items-center gap-4">
             <!-- Date Picker -->
             <div class="relative">
-                <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none z-10">
                     <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                         <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
                     </svg>
                 </div>
                 <input type="text" 
                        id="date-filter" 
-                       class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" 
+                       class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full text-center p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" 
                        placeholder="Select date">
             </div>
         <a href="#" data-modal-target="activityModal" data-modal-toggle="activityModal" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800">
@@ -234,7 +282,7 @@
                                 <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
                             </svg>
                         </div>
-                        <input type="text" id="activity-search" class="block w-full p-2.5 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Search activities...">
+                        <input type="text" id="activity-search" class="block w-full ps-10 p-2.5 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white" placeholder="Search activities...">
                     </div>
                 </div>
             </div>
@@ -525,14 +573,32 @@
                                     <label for="edit-ingredients" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Ingredients (one per line)</label>
                                     <textarea id="edit-ingredients" name="ingredients" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"></textarea>
                                 </div>
-                                <div class="grid gap-6 mb-6 md:grid-cols-2">
+                                <div class="grid gap-8 mb-6 md:grid-cols-2">
                                     <div>
                                         <label for="edit-consumed-at-date" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date consumed</label>
-                                        <input type="date" id="edit-consumed-at-date" name="consumed_at_date" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none z-10">
+                                                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
+                                                </svg>
+                                            </div>
+                                            <input type="text" 
+                                                id="edit-consumed-at-date" 
+                                                name="consumed_at_date" 
+                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full text-center ps-10 p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" 
+                                                placeholder="Select date">
+                                        </div>
                                     </div>
                                     <div>
                                         <label for="edit-consumed-at-time" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Time consumed</label>
-                                        <input type="time" id="edit-consumed-at-time" name="consumed_at_time" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none z-10">
+                                                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M10 0C4.477 0 0 4.477 0 10c0 5.523 4.477 10 10 10s10-4.477 10-10C20 4.477 15.523 0 10 0zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8zm.5-13H9v5.793l3.146 3.147.708-.708L10 10.379V5z"/>
+                                                </svg>
+                                            </div>
+                                            <input type="time" id="edit-consumed-at-time" name="consumed_at_time" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full text-center ps-10 p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -608,7 +674,7 @@
             try {
                 // Initialize flatpickr with user's timezone info
                 const picker = flatpickr(datepickerEl, {
-                    dateFormat: 'Y-m-d',
+                    dateFormat: 'F j, Y', // Display in human-readable format: April 2, 2025
                     defaultDate: currentDate || formattedToday,
                     enableTime: false,
                     allowInput: true,
@@ -616,8 +682,14 @@
                     static: true,
                     // Don't adjust dates - we want to use dates as-is with server handling timezone conversion
                     onChange: function(selectedDates, dateStr) {
-                        if (dateStr) {
-                            window.location.href = `/activities/?date=${dateStr}`;
+                        if (selectedDates.length > 0) {
+                            // Format the date as YYYY-MM-DD for the URL
+                            const date = selectedDates[0];
+                            const year = date.getFullYear();
+                            const month = String(date.getMonth() + 1).padStart(2, '0');
+                            const day = String(date.getDate()).padStart(2, '0');
+                            const formattedDate = `${year}-${month}-${day}`;
+                            window.location.href = `/activities/?date=${formattedDate}`;
                         } else {
                             window.location.href = '/activities/';
                         }
@@ -626,7 +698,10 @@
                 
                 // Set initial value if date is in URL or default to today
                 if (currentDate) {
-                    datepickerEl.value = currentDate;
+                    // Convert YYYY-MM-DD to Date object for display in long format
+                    const parts = currentDate.split('-');
+                    const dateObj = new Date(parts[0], parts[1] - 1, parts[2]);
+                    picker.setDate(dateObj);
                 } else {
                     datepickerEl.value = formattedToday;
                     // If no date in URL, redirect to today's date
@@ -741,6 +816,19 @@
                 e.preventDefault();
                 const formData = new FormData(this);
                 const activityId = formData.get('activity_id');
+                
+                // Handle date format if using Flatpickr
+                const dateInput = document.getElementById('edit-consumed-at-date');
+                if (dateInput && dateInput._flatpickr) {
+                    const selectedDate = dateInput._flatpickr.selectedDates[0];
+                    if (selectedDate) {
+                        // Format as YYYY-MM-DD for the server
+                        const year = selectedDate.getFullYear();
+                        const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+                        const day = String(selectedDate.getDate()).padStart(2, '0');
+                        formData.set('consumed_at_date', `${year}-${month}-${day}`);
+                    }
+                }
 
                 try {
                     const response = await fetch(`/activities/${activityId}/update/`, {
@@ -886,7 +974,29 @@
                     // Handle consumed at date/time
                     if (activity.consumptions?.[0]?.consumed_at) {
                         const consumedAt = new Date(activity.consumptions[0].consumed_at);
-                        document.getElementById('edit-consumed-at-date').value = consumedAt.toISOString().split('T')[0];
+                        
+                        // Initialize flatpickr if it's not already initialized
+                        const dateInput = document.getElementById('edit-consumed-at-date');
+                        if (dateInput && typeof flatpickr !== 'undefined') {
+                            // Destroy existing flatpickr instance if it exists
+                            if (dateInput._flatpickr) {
+                                dateInput._flatpickr.destroy();
+                            }
+                            
+                            // Initialize flatpickr
+                            const datepicker = flatpickr(dateInput, {
+                                dateFormat: 'F j, Y',
+                                defaultDate: consumedAt,
+                                enableTime: false,
+                                allowInput: true,
+                                clickOpens: true,
+                                static: true
+                            });
+                        } else {
+                            // Fallback to regular date input
+                            dateInput.value = consumedAt.toISOString().split('T')[0];
+                        }
+                        
                         document.getElementById('edit-consumed-at-time').value = consumedAt.toTimeString().slice(0, 5);
                     }
                 }

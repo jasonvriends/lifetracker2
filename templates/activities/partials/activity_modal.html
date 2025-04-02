@@ -66,25 +66,32 @@
                                     <label for="ingredients" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Ingredients (one per line)</label>
                                     <textarea id="ingredients" name="ingredients" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"></textarea>
                                 </div>
-                                <div class="grid gap-6 mb-6 md:grid-cols-2">
+                                <div class="grid gap-8 mb-6 md:grid-cols-2">
                                     <div>
                                         <label for="consume-date" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Date consumed</label>
                                         <div class="relative">
-                                            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
+                                            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none z-10">
                                                 <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                                                     <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
                                                 </svg>
                                             </div>
                                             <input type="text" 
-                                                  id="consume-date" 
-                                                  name="consumed_at_date" 
-                                                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full ps-10 p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" 
-                                                  placeholder="Select date">
+                                                id="consume-date" 
+                                                name="consumed_at_date" 
+                                                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full text-center ps-10 p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" 
+                                                placeholder="Select date">
                                         </div>
                                     </div>
                                     <div>
                                         <label for="consume-time" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Time consumed</label>
-                                        <input type="time" id="consume-time" name="consumed_at_time" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
+                                        <div class="relative">
+                                            <div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none z-10">
+                                                <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path d="M10 0C4.477 0 0 4.477 0 10c0 5.523 4.477 10 10 10s10-4.477 10-10C20 4.477 15.523 0 10 0zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8zm.5-13H9v5.793l3.146 3.147.708-.708L10 10.379V5z"/>
+                                                </svg>
+                                            </div>
+                                            <input type="time" id="consume-time" name="consumed_at_time" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full text-center ps-10 p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white">
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="flex items-center">
@@ -123,7 +130,7 @@
         if (consumeDateInput && typeof flatpickr !== 'undefined') {
             try {
                 const datepicker = flatpickr(consumeDateInput, {
-                    dateFormat: 'Y-m-d',
+                    dateFormat: 'F j, Y', // Long format: April 2, 2025
                     defaultDate: new Date(),
                     enableTime: false,
                     allowInput: true,
@@ -183,9 +190,13 @@
                 
                 // Update flatpickr with today's date if it exists
                 if (consumeDateInput._flatpickr) {
-                    consumeDateInput._flatpickr.setDate(new Date());
+                    consumeDateInput._flatpickr.setDate(now);
                 } else {
-                    consumeDateInput.value = now.toISOString().split('T')[0];
+                    // Format date in ISO format for non-flatpickr fallback
+                    const year = now.getFullYear();
+                    const month = String(now.getMonth() + 1).padStart(2, '0');
+                    const day = String(now.getDate()).padStart(2, '0');
+                    consumeDateInput.value = `${year}-${month}-${day}`;
                 }
             } else if (selectedCategory) {
                 basicActivityForm.style.display = 'block';
@@ -202,10 +213,28 @@
                 if (key === 'ingredients') {
                     data[key] = value.split('\n').filter(i => i.trim());
                 } else if (key === 'consumed_at_date' && formData.get('consumed_at_time')) {
-                    const date = value;
-                    const time = formData.get('consumed_at_time');
-                    data['date'] = date;
-                    data['time'] = time;
+                    // Parse the long format date (e.g., "April 2, 2025") into YYYY-MM-DD
+                    const dateInput = value;
+                    const timeInput = formData.get('consumed_at_time');
+                    
+                    // If it's already in YYYY-MM-DD format, use it directly
+                    if (/^\d{4}-\d{2}-\d{2}$/.test(dateInput)) {
+                        data['date'] = dateInput;
+                    } else {
+                        // Parse the long format date
+                        const dateObj = new Date(dateInput);
+                        if (!isNaN(dateObj)) {
+                            const year = dateObj.getFullYear();
+                            const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                            const day = String(dateObj.getDate()).padStart(2, '0');
+                            data['date'] = `${year}-${month}-${day}`;
+                        } else {
+                            // Fallback if parsing fails
+                            data['date'] = dateInput;
+                        }
+                    }
+                    
+                    data['time'] = timeInput;
                 } else if (key === 'favorite') {
                     data[key] = value === 'on';
                 } else if (key === 'consumption_description') {
